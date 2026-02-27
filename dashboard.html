@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>bleh</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0c0c0c;
+      --surface:  #111111;
+      --border:   #1e1e1e;
+      --text:     #e0e0e0;
+      --muted:    #4a4a4a;
+      --muted2:   #666;
+      --green:    #4ade80;
+      --red:      #f87171;
+      --blue:     #60a5fa;
+      --orange:   #fb923c;
+      --purple:   #c084fc;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    input, select, textarea, button { font-family: inherit; font-size: 13px; }
+
+    /* ── Auth overlay ──────────────────────────────────────────────────── */
+    #auth {
+      position: fixed; inset: 0;
+      background: var(--bg);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 999;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 36px 32px;
+      width: 380px;
+    }
+
+    .card-title { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+    .card-sub   { color: var(--muted2); font-size: 12px; margin-bottom: 28px; line-height: 1.6; }
+
+    .field { margin-bottom: 14px; }
+    .field label { display: block; font-size: 11px; color: var(--muted2); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; }
+    .field input {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 9px 12px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .field input:focus { border-color: #333; }
+
+    .btn-block {
+      width: 100%;
+      background: var(--text);
+      color: var(--bg);
+      border: none;
+      border-radius: 4px;
+      padding: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 6px;
+      transition: opacity 0.15s;
+    }
+    .btn-block:hover { opacity: 0.88; }
+
+    .link-btn {
+      background: none; border: none;
+      color: var(--muted2); text-decoration: underline;
+      cursor: pointer; font-size: 12px;
+      display: block; text-align: center;
+      margin-top: 14px;
+    }
+    .link-btn:hover { color: var(--text); }
+
+    .err-msg { color: var(--red); font-size: 12px; margin-top: 10px; min-height: 18px; }
+
+    /* ── Layout ────────────────────────────────────────────────────────── */
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 28px;
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0;
+      background: var(--bg);
+      z-index: 10;
+    }
+
+    .logo { font-size: 16px; font-weight: 700; }
+    .logo-count { color: var(--muted2); font-size: 12px; font-weight: 400; margin-left: 10px; }
+
+    .hdr-actions { display: flex; gap: 8px; align-items: center; }
+
+    main { max-width: 1020px; margin: 0 auto; padding: 28px; }
+
+    /* ── Buttons ───────────────────────────────────────────────────────── */
+    .btn {
+      border-radius: 4px;
+      padding: 7px 14px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 500;
+      line-height: 1;
+      transition: opacity 0.15s, border-color 0.15s, color 0.15s;
+    }
+    .btn-primary { background: var(--text); color: var(--bg); border: none; font-weight: 700; }
+    .btn-primary:hover { opacity: 0.88; }
+    .btn-ghost   { background: none; border: 1px solid var(--border); color: var(--muted2); }
+    .btn-ghost:hover   { border-color: #333; color: var(--text); }
+    .btn-danger  { background: none; border: 1px solid #3a1010; color: var(--red); }
+    .btn-danger:hover  { background: #1a0808; }
+
+    /* ── Routes table ──────────────────────────────────────────────────── */
+    .table-wrap { overflow-x: auto; }
+    table.routes {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    table.routes th {
+      text-align: left;
+      padding: 8px 14px;
+      font-size: 11px; font-weight: 400;
+      text-transform: uppercase; letter-spacing: 0.6px;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+    }
+    table.routes td {
+      padding: 13px 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    table.routes tbody tr:hover td { background: #0f0f0f; }
+
+    /* ── Method badges ─────────────────────────────────────────────────── */
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 3px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+    .GET    { background: #0d200d; color: var(--green);  }
+    .POST   { background: #0d1525; color: var(--blue);   }
+    .PUT    { background: #251800; color: var(--orange);  }
+    .DELETE { background: #250d0d; color: var(--red);    }
+    .PATCH  { background: #180d25; color: var(--purple); }
+
+    /* ── Toggle ────────────────────────────────────────────────────────── */
+    .toggle { position: relative; width: 32px; height: 18px; display: inline-block; cursor: pointer; }
+    .toggle input { display: none; }
+    .t-track {
+      position: absolute; inset: 0;
+      background: #1e1e1e;
+      border-radius: 9px;
+      transition: background 0.15s;
+    }
+    .t-thumb {
+      position: absolute;
+      width: 12px; height: 12px;
+      background: var(--muted);
+      border-radius: 50%;
+      top: 3px; left: 3px;
+      transition: transform 0.15s, background 0.15s;
+      pointer-events: none;
+    }
+    .toggle input:checked ~ .t-track { background: #0d250d; }
+    .toggle input:checked ~ .t-thumb { transform: translateX(14px); background: var(--green); }
+
+    /* ── Icon buttons ──────────────────────────────────────────────────── */
+    .icon-btn {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--muted2);
+      padding: 4px 9px;
+      cursor: pointer;
+      font-size: 11px;
+      font-family: inherit;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .icon-btn:hover       { border-color: #333; color: var(--text); }
+    .icon-btn.del:hover   { border-color: #3a1010; color: var(--red); }
+
+    /* ── Empty state ───────────────────────────────────────────────────── */
+    .empty { text-align: center; padding: 80px 0; color: var(--muted); font-size: 13px; }
+
+    /* ── Modal ─────────────────────────────────────────────────────────── */
+    .modal-bg {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.75);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 100;
+    }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      width: 680px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-hdr {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 26px;
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; background: var(--surface); z-index: 1;
+    }
+    .modal-hdr h2 { font-size: 15px; font-weight: 600; }
+    .modal-x {
+      background: none; border: none;
+      color: var(--muted2); cursor: pointer;
+      font-size: 20px; line-height: 1; padding: 2px 4px;
+    }
+    .modal-x:hover { color: var(--text); }
+
+    .modal-body { padding: 26px; }
+
+    .modal-ftr {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 26px;
+      border-top: 1px solid var(--border);
+      position: sticky; bottom: 0; background: var(--surface);
+    }
+    .ftr-right { display: flex; gap: 8px; }
+
+    /* ── Form ──────────────────────────────────────────────────────────── */
+    .form-row   { display: flex; gap: 14px; margin-bottom: 18px; }
+    .fg         { display: flex; flex-direction: column; gap: 7px; flex: 1; }
+    .fg label   { font-size: 11px; color: var(--muted2); text-transform: uppercase; letter-spacing: 0.6px; }
+
+    .fg input, .fg select {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 8px 11px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .fg input:focus, .fg select:focus { border-color: #333; }
+    .fg select option { background: var(--surface); }
+
+    .fg textarea {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 12px;
+      color: var(--text);
+      outline: none;
+      resize: vertical;
+      min-height: 230px;
+      line-height: 1.65;
+      tab-size: 2;
+      transition: border-color 0.15s;
+    }
+    .fg textarea:focus { border-color: #333; }
+
+    .hint {
+      font-size: 11px;
+      color: #383838;
+      line-height: 1.7;
+      margin-top: 5px;
+    }
+    .hint code {
+      background: #0a0a0a;
+      padding: 1px 5px;
+      border-radius: 3px;
+      color: #555;
+    }
+
+    .inline-row {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 16px;
+    }
+    .inline-row .lbl { flex: 1; color: var(--muted2); font-size: 12px; }
+
+    .rl-fields { display: flex; gap: 8px; margin-top: 10px; }
+    .rl-fields input, .rl-fields select {
+      flex: 1;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 8px 11px;
+      color: var(--text);
+      outline: none;
+    }
+    .rl-fields input:focus, .rl-fields select:focus { border-color: #333; }
+
+    /* ── Logs modal ────────────────────────────────────────────────────── */
+    .logs-modal { width: 860px; }
+
+    table.logs {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    table.logs th {
+      text-align: left;
+      padding: 7px 12px;
+      font-size: 11px; font-weight: 400;
+      text-transform: uppercase; letter-spacing: 0.6px;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+    }
+    table.logs td {
+      padding: 9px 12px;
+      border-bottom: 1px solid #0f0f0f;
+      vertical-align: top;
+    }
+    table.logs tbody tr:hover td { background: #0f0f0f; }
+    table.logs .expand-row:hover td { background: transparent; }
+
+    .s-ok  { color: var(--green); }
+    .s-err { color: var(--red);   }
+
+    .trunc {
+      display: block;
+      max-width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: var(--muted2);
+      cursor: pointer;
+    }
+    .trunc:hover { color: var(--text); }
+
+    .expand-row td { padding: 0 12px 12px; }
+    .expand-box {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 10px 12px;
+      font-size: 11px;
+      white-space: pre-wrap;
+      word-break: break-all;
+      max-height: 220px;
+      overflow-y: auto;
+      color: #888;
+    }
+
+    .logs-top { display: flex; justify-content: flex-end; margin-bottom: 14px; }
+
+    /* ── Utils ─────────────────────────────────────────────────────────── */
+    .hidden { display: none !important; }
+    .mt8 { margin-top: 8px; }
+  </style>
+</head>
+<body>
+
+<!-- ── Auth overlay ───────────────────────────────────────────────────────── -->
+<div id="auth">
+  <div class="card" id="screen-setup" style="display:none">
+    <div class="card-title">welcome to bleh</div>
+    <div class="card-sub">first time setup — set a password to protect your dashboard</div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="setup-pw" placeholder="at least 4 characters" />
+    </div>
+    <button class="btn-block" onclick="doSetup()">set password →</button>
+    <div class="err-msg" id="setup-err"></div>
+  </div>
+
+  <div class="card" id="screen-login" style="display:none">
+    <div class="card-title">bleh</div>
+    <div class="card-sub">enter your dashboard password to continue</div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="login-pw" placeholder="password"
+             onkeydown="if(event.key==='Enter') doLogin()" />
+    </div>
+    <button class="btn-block" onclick="doLogin()">enter →</button>
+    <div class="err-msg" id="login-err"></div>
+    <button class="link-btn" onclick="showScreen('forgot')">forgot password?</button>
+  </div>
+
+  <div class="card" id="screen-forgot" style="display:none">
+    <div class="card-title">reset password</div>
+    <div class="card-sub">enter the PASSPHRASE from your env to reset your password</div>
+    <div class="field">
+      <label>Passphrase</label>
+      <input type="password" id="forgot-pp" placeholder="your PASSPHRASE env value" />
+    </div>
+    <div class="field">
+      <label>New Password</label>
+      <input type="password" id="forgot-pw" placeholder="new password" />
+    </div>
+    <button class="btn-block" onclick="doForgot()">reset →</button>
+    <div class="err-msg" id="forgot-err"></div>
+    <button class="link-btn" onclick="showScreen('login')">← back to login</button>
+  </div>
+</div>
+
+<!-- ── Dashboard ──────────────────────────────────────────────────────────── -->
+<div id="app" class="hidden">
+  <header>
+    <div class="logo">
+      bleh
+      <span class="logo-count" id="route-count"></span>
+    </div>
+    <div class="hdr-actions">
+      <button class="btn btn-ghost" onclick="doLogout()">lock</button>
+      <button class="btn btn-primary" onclick="openRouteModal(null)">+ new route</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="table-wrap">
+      <table class="routes" id="routes-table">
+        <thead>
+          <tr>
+            <th>Method</th>
+            <th>Path</th>
+            <th>CORS</th>
+            <th>Logging</th>
+            <th>Rate Limit</th>
+            <th>Enabled</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="routes-body"></tbody>
+      </table>
+      <div class="empty hidden" id="empty-state">no routes yet — click + new route to get started</div>
+    </div>
+  </main>
+</div>
+
+<!-- ── Route modal ────────────────────────────────────────────────────────── -->
+<div class="modal-bg hidden" id="route-modal" onclick="bgClose(event,'route-modal')">
+  <div class="modal">
+    <div class="modal-hdr">
+      <h2 id="modal-title">new route</h2>
+      <button class="modal-x" onclick="closeRouteModal()">×</button>
+    </div>
+    <div class="modal-body">
+
+      <div class="form-row">
+        <div class="fg" style="flex:2">
+          <label>Path</label>
+          <input type="text" id="r-path" placeholder="/your-endpoint  or  /user/:id" />
+        </div>
+        <div class="fg" style="flex:1">
+          <label>Method</label>
+          <select id="r-method">
+            <option>GET</option>
+            <option>POST</option>
+            <option>PUT</option>
+            <option>DELETE</option>
+            <option>PATCH</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="fg" style="margin-bottom:18px">
+        <label>Handler Code</label>
+        <textarea id="r-code"
+          placeholder="// available variables:&#10;//   req     — raw Request object&#10;//   body    — parsed JSON body (or raw text)&#10;//   headers — request headers as object&#10;//   query   — URL search params as object&#10;//   params  — path params (e.g. :id)&#10;&#10;const data = await fetch('https://api.example.com/').then(r => r.json())&#10;return { data }"></textarea>
+        <div class="hint">
+          <code>req</code> · <code>body</code> · <code>headers</code> · <code>query</code> · <code>params</code>
+          &nbsp;—&nbsp; return any value or a <code>new Response(...)</code>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="fg">
+          <label>CORS</label>
+          <select id="r-cors-type" onchange="onCorsChange()">
+            <option value="">disabled</option>
+            <option value="*">allow all origins  (*)</option>
+            <option value="custom">specific origin</option>
+          </select>
+        </div>
+        <div class="fg" id="cors-custom-wrap" style="display:none">
+          <label>Origin</label>
+          <input type="text" id="r-cors-custom" placeholder="https://myapp.com" />
+        </div>
+      </div>
+
+      <div class="inline-row mt8">
+        <span class="lbl">Request logging (SQLite)</span>
+        <label class="toggle">
+          <input type="checkbox" id="r-logging">
+          <div class="t-track"></div>
+          <div class="t-thumb"></div>
+        </label>
+      </div>
+
+      <div class="inline-row">
+        <span class="lbl">Rate limiting</span>
+        <label class="toggle">
+          <input type="checkbox" id="r-rl" onchange="onRlChange()">
+          <div class="t-track"></div>
+          <div class="t-thumb"></div>
+        </label>
+      </div>
+      <div id="rl-wrap" style="display:none; margin-bottom:18px">
+        <div class="rl-fields">
+          <input type="number" id="r-rl-req" placeholder="100" min="1" />
+          <select id="r-rl-win">
+            <option value="10s">per 10 seconds</option>
+            <option value="1m" selected>per minute</option>
+            <option value="5m">per 5 minutes</option>
+            <option value="15m">per 15 minutes</option>
+            <option value="1h">per hour</option>
+            <option value="1d">per day</option>
+          </select>
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-ftr">
+      <div>
+        <button class="btn btn-danger hidden" id="modal-del" onclick="deleteRoute()">delete route</button>
+      </div>
+      <div class="ftr-right">
+        <button class="btn btn-ghost" onclick="closeRouteModal()">cancel</button>
+        <button class="btn btn-primary" onclick="saveRoute()">save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Logs modal ─────────────────────────────────────────────────────────── -->
+<div class="modal-bg hidden" id="logs-modal" onclick="bgClose(event,'logs-modal')">
+  <div class="modal logs-modal">
+    <div class="modal-hdr">
+      <h2 id="logs-title">logs</h2>
+      <button class="modal-x" onclick="closeLogsModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="logs-top">
+        <button class="btn btn-danger" onclick="doClearLogs()">clear logs</button>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="logs">
+          <thead>
+            <tr>
+              <th style="white-space:nowrap">Time</th>
+              <th>Status</th>
+              <th>Method</th>
+              <th>Request Body</th>
+              <th>Response</th>
+            </tr>
+          </thead>
+          <tbody id="logs-body"></tbody>
+        </table>
+        <div class="empty hidden" id="logs-empty">no logs yet for this route</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let pwd = null;
+  let routes = [];
+  let editingId = null;
+  let logsRouteId = null;
+
+  // ── API helper ──────────────────────────────────────────────────────────────
+  async function api(path, method, body) {
+    const res = await fetch('/__dashboard' + path, {
+      method: method || 'GET',
+      headers: Object.assign(
+        { 'Content-Type': 'application/json' },
+        pwd ? { 'X-Password': pwd } : {}
+      ),
+      body: body !== undefined ? JSON.stringify(body) : undefined
+    });
+    return res.json();
+  }
+
+  // ── Auth ────────────────────────────────────────────────────────────────────
+  function showScreen(name) {
+    ['setup', 'login', 'forgot'].forEach(function(s) {
+      document.getElementById('screen-' + s).style.display = s === name ? '' : 'none';
+    });
+    setTimeout(function() {
+      var inputs = { setup: 'setup-pw', login: 'login-pw', forgot: 'forgot-pp' };
+      var el = document.getElementById(inputs[name]);
+      if (el) el.focus();
+    }, 50);
+  }
+
+  function setErr(id, msg) { document.getElementById(id).textContent = msg || ''; }
+
+  async function init() {
+    var res = await api('/status');
+    showScreen(res.setup ? 'login' : 'setup');
+  }
+
+  async function doSetup() {
+    setErr('setup-err', '');
+    var pw = document.getElementById('setup-pw').value;
+    var res = await api('/setup', 'POST', { password: pw });
+    if (res.error) return setErr('setup-err', res.error);
+    pwd = pw;
+    enterDashboard();
+  }
+
+  async function doLogin() {
+    setErr('login-err', '');
+    var pw = document.getElementById('login-pw').value;
+    var res = await api('/login', 'POST', { password: pw });
+    if (!res.ok) return setErr('login-err', 'wrong password');
+    pwd = pw;
+    enterDashboard();
+  }
+
+  async function doForgot() {
+    setErr('forgot-err', '');
+    var pp = document.getElementById('forgot-pp').value;
+    var pw = document.getElementById('forgot-pw').value;
+    var res = await api('/forgot', 'POST', { passphrase: pp, password: pw });
+    if (res.error) return setErr('forgot-err', res.error);
+    pwd = pw;
+    enterDashboard();
+  }
+
+  function doLogout() {
+    pwd = null;
+    document.getElementById('app').classList.add('hidden');
+    document.getElementById('auth').classList.remove('hidden');
+    document.getElementById('login-pw').value = '';
+    showScreen('login');
+  }
+
+  async function enterDashboard() {
+    document.getElementById('auth').classList.add('hidden');
+    document.getElementById('app').classList.remove('hidden');
+    await loadRoutes();
+  }
+
+  // ── Routes ──────────────────────────────────────────────────────────────────
+  async function loadRoutes() {
+    routes = await api('/routes');
+    renderRoutes();
+  }
+
+  function renderRoutes() {
+    var tbody = document.getElementById('routes-body');
+    var empty = document.getElementById('empty-state');
+    var cnt   = document.getElementById('route-count');
+
+    cnt.textContent = routes.length
+      ? routes.length + ' route' + (routes.length !== 1 ? 's' : '')
+      : '';
+
+    if (!routes.length) {
+      tbody.innerHTML = '';
+      empty.classList.remove('hidden');
+      return;
+    }
+    empty.classList.add('hidden');
+
+    tbody.innerHTML = routes.map(function(r) {
+      var corsLabel = !r.corsOrigin ? '—'
+        : r.corsOrigin === '*' ? 'all'
+        : r.corsOrigin;
+      var rlLabel = (r.rateLimit && r.rateLimit.enabled)
+        ? r.rateLimit.requests + ' / ' + r.rateLimit.window
+        : '—';
+
+      return '<tr>'
+        + '<td><span class="badge ' + r.method + '">' + r.method + '</span></td>'
+        + '<td>' + esc(r.path) + '</td>'
+        + '<td style="color:var(--muted2)">' + esc(corsLabel) + '</td>'
+        + '<td><label class="toggle">'
+        +   '<input type="checkbox"' + (r.logging ? ' checked' : '')
+        +     ' onchange="patchRoute(\'' + r.id + '\',{logging:this.checked})">'
+        +   '<div class="t-track"></div><div class="t-thumb"></div>'
+        + '</label></td>'
+        + '<td style="color:var(--muted2)">' + esc(rlLabel) + '</td>'
+        + '<td><label class="toggle">'
+        +   '<input type="checkbox"' + (r.enabled ? ' checked' : '')
+        +     ' onchange="patchRoute(\'' + r.id + '\',{enabled:this.checked})">'
+        +   '<div class="t-track"></div><div class="t-thumb"></div>'
+        + '</label></td>'
+        + '<td style="white-space:nowrap">'
+        +   '<button class="icon-btn" onclick="openLogsModal(\'' + r.id + '\',\'' + esc(r.path) + '\')">logs</button> '
+        +   '<button class="icon-btn" onclick="openRouteModal(\'' + r.id + '\')">edit</button>'
+        + '</td>'
+        + '</tr>';
+    }).join('');
+  }
+
+  async function patchRoute(id, updates) {
+    await api('/routes/' + id, 'PATCH', updates);
+    var r = routes.find(function(x) { return x.id === id; });
+    if (r) Object.assign(r, updates);
+  }
+
+  // ── Route modal ─────────────────────────────────────────────────────────────
+  function openRouteModal(id) {
+    editingId = id || null;
+    var delBtn = document.getElementById('modal-del');
+
+    if (id) {
+      document.getElementById('modal-title').textContent = 'edit route';
+      delBtn.classList.remove('hidden');
+      var r = routes.find(function(x) { return x.id === id; });
+      if (!r) return;
+
+      document.getElementById('r-path').value   = r.path;
+      document.getElementById('r-method').value = r.method;
+      document.getElementById('r-code').value   = r.code;
+      document.getElementById('r-logging').checked = r.logging;
+
+      // CORS
+      var ct = !r.corsOrigin ? '' : r.corsOrigin === '*' ? '*' : 'custom';
+      document.getElementById('r-cors-type').value = ct;
+      document.getElementById('cors-custom-wrap').style.display = ct === 'custom' ? '' : 'none';
+      document.getElementById('r-cors-custom').value = (ct === 'custom') ? r.corsOrigin : '';
+
+      // Rate limit
+      var rl = r.rateLimit && r.rateLimit.enabled;
+      document.getElementById('r-rl').checked = !!rl;
+      document.getElementById('rl-wrap').style.display = rl ? '' : 'none';
+      if (rl) {
+        document.getElementById('r-rl-req').value = r.rateLimit.requests;
+        document.getElementById('r-rl-win').value = r.rateLimit.window;
+      }
+    } else {
+      document.getElementById('modal-title').textContent = 'new route';
+      delBtn.classList.add('hidden');
+      document.getElementById('r-path').value   = '';
+      document.getElementById('r-method').value = 'GET';
+      document.getElementById('r-code').value   = '';
+      document.getElementById('r-logging').checked = false;
+      document.getElementById('r-cors-type').value = '';
+      document.getElementById('cors-custom-wrap').style.display = 'none';
+      document.getElementById('r-cors-custom').value = '';
+      document.getElementById('r-rl').checked = false;
+      document.getElementById('rl-wrap').style.display = 'none';
+      document.getElementById('r-rl-req').value = '100';
+      document.getElementById('r-rl-win').value = '1m';
+    }
+
+    document.getElementById('route-modal').classList.remove('hidden');
+    setTimeout(function() { document.getElementById('r-path').focus(); }, 60);
+  }
+
+  function closeRouteModal() {
+    document.getElementById('route-modal').classList.add('hidden');
+    editingId = null;
+  }
+
+  function onCorsChange() {
+    var v = document.getElementById('r-cors-type').value;
+    document.getElementById('cors-custom-wrap').style.display = v === 'custom' ? '' : 'none';
+  }
+
+  function onRlChange() {
+    var on = document.getElementById('r-rl').checked;
+    document.getElementById('rl-wrap').style.display = on ? '' : 'none';
+  }
+
+  async function saveRoute() {
+    var path = document.getElementById('r-path').value.trim();
+    if (!path.startsWith('/')) {
+      document.getElementById('r-path').focus();
+      document.getElementById('r-path').style.borderColor = 'var(--red)';
+      setTimeout(function() { document.getElementById('r-path').style.borderColor = ''; }, 1500);
+      return;
+    }
+
+    var ct = document.getElementById('r-cors-type').value;
+    var corsOrigin = ct === 'custom'
+      ? document.getElementById('r-cors-custom').value.trim()
+      : ct;
+
+    var rlOn = document.getElementById('r-rl').checked;
+    var rateLimit = rlOn ? {
+      enabled:  true,
+      requests: parseInt(document.getElementById('r-rl-req').value) || 100,
+      window:   document.getElementById('r-rl-win').value,
+    } : null;
+
+    var data = {
+      path:       path,
+      method:     document.getElementById('r-method').value,
+      code:       document.getElementById('r-code').value,
+      corsOrigin: corsOrigin,
+      logging:    document.getElementById('r-logging').checked,
+      rateLimit:  rateLimit,
+    };
+
+    if (editingId) {
+      await api('/routes/' + editingId, 'PUT', data);
+    } else {
+      await api('/routes', 'POST', data);
+    }
+
+    closeRouteModal();
+    await loadRoutes();
+  }
+
+  async function deleteRoute() {
+    if (!editingId || !confirm('Delete this route and all its logs?')) return;
+    await api('/routes/' + editingId, 'DELETE');
+    closeRouteModal();
+    await loadRoutes();
+  }
+
+  // ── Logs modal ──────────────────────────────────────────────────────────────
+  async function openLogsModal(id, path) {
+    logsRouteId = id;
+    document.getElementById('logs-title').textContent = 'logs · ' + path;
+    document.getElementById('logs-modal').classList.remove('hidden');
+    await loadLogs();
+  }
+
+  function closeLogsModal() {
+    document.getElementById('logs-modal').classList.add('hidden');
+    logsRouteId = null;
+  }
+
+  async function loadLogs() {
+    if (!logsRouteId) return;
+    var logs = await api('/routes/' + logsRouteId + '/logs');
+    var tbody = document.getElementById('logs-body');
+    var empty = document.getElementById('logs-empty');
+
+    if (!logs.length) {
+      tbody.innerHTML = '';
+      empty.classList.remove('hidden');
+      return;
+    }
+    empty.classList.add('hidden');
+
+    tbody.innerHTML = logs.map(function(l, i) {
+      var ts = new Date(l.timestamp + 'Z').toLocaleString();
+      var cls = l.status < 400 ? 's-ok' : 's-err';
+      return '<tr onclick="toggleExpand(' + i + ')">'
+        + '<td style="white-space:nowrap;color:var(--muted2)">' + esc(ts) + '</td>'
+        + '<td class="' + cls + '">' + l.status + '</td>'
+        + '<td><span class="badge ' + l.method + '">' + l.method + '</span></td>'
+        + '<td><span class="trunc">' + esc(l.request_body || '—') + '</span></td>'
+        + '<td><span class="trunc">' + esc(l.response_body || '—') + '</span></td>'
+        + '</tr>'
+        + '<tr class="expand-row hidden" id="exp-' + i + '">'
+        + '<td colspan="5"><div style="display:flex;gap:12px;padding-top:4px">'
+        + '<div style="flex:1"><div style="font-size:11px;color:var(--muted2);margin-bottom:6px">REQUEST BODY</div>'
+        + '<div class="expand-box">' + esc(pretty(l.request_body)) + '</div></div>'
+        + '<div style="flex:1"><div style="font-size:11px;color:var(--muted2);margin-bottom:6px">RESPONSE</div>'
+        + '<div class="expand-box">' + esc(pretty(l.response_body)) + '</div></div>'
+        + '</div></td></tr>';
+    }).join('');
+  }
+
+  function toggleExpand(i) {
+    var row = document.getElementById('exp-' + i);
+    if (row) row.classList.toggle('hidden');
+  }
+
+  async function doClearLogs() {
+    if (!logsRouteId || !confirm('Clear all logs for this route?')) return;
+    await api('/routes/' + logsRouteId + '/logs', 'DELETE');
+    await loadLogs();
+  }
+
+  // ── Utils ───────────────────────────────────────────────────────────────────
+  function bgClose(e, id) {
+    if (e.target.id === id) {
+      if (id === 'route-modal') closeRouteModal();
+      else closeLogsModal();
+    }
+  }
+
+  function esc(s) {
+    return String(s || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function pretty(s) {
+    if (!s) return '';
+    try { return JSON.stringify(JSON.parse(s), null, 2); }
+    catch { return s; }
+  }
+
+  // Tab key in code textarea
+  document.addEventListener('DOMContentLoaded', function() {
+    var ta = document.getElementById('r-code');
+    ta.addEventListener('keydown', function(e) {
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        var s = ta.selectionStart, end = ta.selectionEnd;
+        ta.value = ta.value.slice(0, s) + '  ' + ta.value.slice(end);
+        ta.selectionStart = ta.selectionEnd = s + 2;
+      }
+    });
+    init();
+  });
+</script>
+</body>
+</html>
