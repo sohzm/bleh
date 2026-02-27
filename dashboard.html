@@ -858,7 +858,7 @@ store.find('col', v => v.active)  // filter by value</pre>
         <p>Upload files in the Files tab. Each file is served at <code>/__u/FILE_ID</code> with the correct Content-Type.</p>
       </div>
     </div>
-    <div class="modal-footer" style="justify-content:flex-end">
+    <div class="modal-footer" style="justify-content:flex-end;gap:8px">
       <a href="https://github.com/soham/bleh" target="_blank" class="btn btn-outline btn-sm">GitHub</a>
       <button class="btn btn-primary" onclick="closeModal('docs-modal')">Close</button>
     </div>
@@ -988,7 +988,7 @@ function logout() {
 
 async function enterDashboard() {
   document.getElementById('auth-page').style.display = 'none';
-  document.getElementById('app').style.display = '';
+  document.getElementById('app').style.display = 'block';
   document.getElementById('server-badge').textContent = window.location.origin;
   await Promise.all([loadRoutes(), loadCrons(), loadFiles()]);
 }
