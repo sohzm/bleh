@@ -1,0 +1,4 @@
+.DS_Store
+state.json
+logs.db
+node_modules/
