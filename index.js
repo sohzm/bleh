@@ -13,15 +13,17 @@ if (!PASSPHRASE) {
   process.exit(1);
 }
 
-// ── State ────────────────────────────────────────────────────────────────────
+// ── State ─────────────────────────────────────────────────────────────────────
 const STATE_FILE = join(__dir, "state.json");
 
 function loadState() {
-  if (!existsSync(STATE_FILE)) return { passwordHash: null, routes: [] };
+  if (!existsSync(STATE_FILE)) return { passwordHash: null, routes: [], crons: [] };
   try {
-    return JSON.parse(readFileSync(STATE_FILE, "utf8"));
+    const s = JSON.parse(readFileSync(STATE_FILE, "utf8"));
+    s.crons = s.crons || [];
+    return s;
   } catch {
-    return { passwordHash: null, routes: [] };
+    return { passwordHash: null, routes: [], crons: [] };
   }
 }
 
@@ -31,9 +33,8 @@ function saveState() {
   writeFileSync(STATE_FILE, JSON.stringify(state, null, 2));
 }
 
-// ── SQLite ───────────────────────────────────────────────────────────────────
+// ── SQLite ─────────────────────────────────────────────────────────────────────
 const db = new Database(join(__dir, "logs.db"));
-
 db.run(`
   CREATE TABLE IF NOT EXISTS logs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -52,13 +53,51 @@ const insertLog = db.prepare(`
   INSERT INTO logs (route_id, method, path, status, request_headers, request_body, response_body)
   VALUES (?, ?, ?, ?, ?, ?, ?)
 `);
-const getLogs = db.prepare(
-  `SELECT * FROM logs WHERE route_id = ? ORDER BY id DESC LIMIT 200`
-);
+const getLogs = db.prepare(`SELECT * FROM logs WHERE route_id = ? ORDER BY id DESC LIMIT 200`);
 const clearLogs = db.prepare(`DELETE FROM logs WHERE route_id = ?`);
 
-// ── Rate limiting ─────────────────────────────────────────────────────────────
-const rlMap = new Map(); // routeId -> { count, resetAt }
+// ── Store ──────────────────────────────────────────────────────────────────────
+db.run(`
+  CREATE TABLE IF NOT EXISTS store (
+    collection TEXT NOT NULL,
+    key        TEXT NOT NULL,
+    value      TEXT NOT NULL,
+    updated_at TEXT DEFAULT (datetime('now')),
+    PRIMARY KEY (collection, key)
+  )
+`);
+
+const _sGet    = db.prepare(`SELECT value FROM store WHERE collection = ? AND key = ?`);
+const _sSet    = db.prepare(`INSERT INTO store (collection, key, value, updated_at) VALUES (?, ?, ?, datetime('now')) ON CONFLICT(collection, key) DO UPDATE SET value = excluded.value, updated_at = datetime('now')`);
+const _sAll    = db.prepare(`SELECT key, value, updated_at FROM store WHERE collection = ? ORDER BY updated_at DESC`);
+const _sDel    = db.prepare(`DELETE FROM store WHERE collection = ? AND key = ?`);
+const _sDrop   = db.prepare(`DELETE FROM store WHERE collection = ?`);
+const _sCols   = db.prepare(`SELECT collection, COUNT(*) as count FROM store GROUP BY collection ORDER BY collection`);
+
+const store = {
+  get(collection, key) {
+    const row = _sGet.get(collection, key);
+    return row ? JSON.parse(row.value) : null;
+  },
+  set(collection, key, value) {
+    _sSet.run(collection, key, JSON.stringify(value));
+  },
+  all(collection) {
+    return _sAll.all(collection).map(r => ({ key: r.key, value: JSON.parse(r.value), updatedAt: r.updated_at }));
+  },
+  delete(collection, key) {
+    _sDel.run(collection, key);
+  },
+  drop(collection) {
+    _sDrop.run(collection);
+  },
+  find(collection, fn) {
+    return this.all(collection).filter(r => fn(r.value));
+  },
+};
+
+// ── Rate limiting ──────────────────────────────────────────────────────────────
+const rlMap = new Map();
 
 function windowMs(w) {
   const m = String(w).match(/^(\d+)(s|m|h|d)$/);
@@ -66,18 +105,66 @@ function windowMs(w) {
   return parseInt(m[1]) * { s: 1000, m: 60_000, h: 3_600_000, d: 86_400_000 }[m[2]];
 }
 
-function isRateLimited(route) {
+function isRateLimited(route, req, server) {
   if (!route.rateLimit?.enabled) return false;
-  const { requests, window } = route.rateLimit;
+  const { requests, window: win, perIp } = route.rateLimit;
+
+  let key = route.id;
+  if (perIp) {
+    const forwarded = req.headers.get("x-forwarded-for");
+    const ip = forwarded
+      ? forwarded.split(",")[0].trim()
+      : (server.requestIP(req)?.address || "unknown");
+    key = `${route.id}:${ip}`;
+  }
+
   const now = Date.now();
-  let e = rlMap.get(route.id);
-  if (!e || now > e.resetAt) e = { count: 0, resetAt: now + windowMs(window) };
+  let e = rlMap.get(key);
+  if (!e || now > e.resetAt) e = { count: 0, resetAt: now + windowMs(win) };
   e.count++;
-  rlMap.set(route.id, e);
+  rlMap.set(key, e);
   return e.count > requests;
 }
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
+// ── Crons ──────────────────────────────────────────────────────────────────────
+const cronTimers = new Map();
+const cronLastRun = new Map();
+
+async function runCron(cron) {
+  cronLastRun.set(cron.id, new Date().toISOString());
+  try {
+    const fn = new Function("store", `return (async () => { ${cron.code} })()`);
+    const result = await fn(store);
+    if (cron.logging) {
+      insertLog.run(cron.id, "CRON", cron.name || cron.id, 200, null, null,
+        JSON.stringify(result ?? null));
+    }
+  } catch (err) {
+    console.error(`[cron] "${cron.name}" failed:`, err.message);
+    if (cron.logging) {
+      insertLog.run(cron.id, "CRON", cron.name || cron.id, 500, null, null,
+        JSON.stringify({ error: err.message, stack: err.stack }));
+    }
+  }
+}
+
+function scheduleCrons() {
+  for (const timer of cronTimers.values()) clearInterval(timer);
+  cronTimers.clear();
+
+  for (const cron of state.crons) {
+    if (!cron.enabled) continue;
+    const id = cron.id;
+    const ms = windowMs(cron.schedule);
+    const timer = setInterval(() => {
+      const current = state.crons.find((c) => c.id === id);
+      if (current?.enabled) runCron(current);
+    }, ms);
+    cronTimers.set(id, timer);
+  }
+}
+
+// ── Helpers ────────────────────────────────────────────────────────────────────
 function json(data, status = 200, extra = {}) {
   return new Response(JSON.stringify(data), {
     status,
@@ -105,7 +192,7 @@ async function parseBody(req) {
   }
 }
 
-// ── Path matching ─────────────────────────────────────────────────────────────
+// ── Path matching ──────────────────────────────────────────────────────────────
 function matchPath(routePath, reqPath) {
   const rp = routePath.split("/");
   const qp = reqPath.split("/");
@@ -121,28 +208,25 @@ function matchPath(routePath, reqPath) {
   return params;
 }
 
-// ── Code execution ────────────────────────────────────────────────────────────
+// ── Code execution ─────────────────────────────────────────────────────────────
 async function runRoute(route, req, url, params) {
   const body = await parseBody(req);
   const headers = Object.fromEntries(req.headers.entries());
   const query = Object.fromEntries(url.searchParams.entries());
 
   let result, status;
-
   try {
-    // eslint-disable-next-line no-new-func
     const fn = new Function(
-      "req", "body", "headers", "query", "params",
+      "req", "body", "headers", "query", "params", "store",
       `return (async () => { ${route.code} })()`
     );
-    result = await fn(req, body, headers, query, params);
+    result = await fn(req, body, headers, query, params, store);
     status = 200;
   } catch (err) {
     result = { error: err.message, stack: err.stack };
     status = 500;
   }
 
-  // User returned a raw Response
   if (result instanceof Response) {
     if (route.logging) {
       const clone = result.clone();
@@ -156,41 +240,35 @@ async function runRoute(route, req, url, params) {
   }
 
   const responseBody = JSON.stringify(result ?? null);
-
   if (route.logging) {
     insertLog.run(route.id, req.method, url.pathname, status,
       JSON.stringify(headers), JSON.stringify(body), responseBody);
   }
-
   return new Response(responseBody, {
     status,
     headers: { "Content-Type": "application/json", ...corsHeaders(route) },
   });
 }
 
-// ── Auth ──────────────────────────────────────────────────────────────────────
+// ── Auth ───────────────────────────────────────────────────────────────────────
 async function verifyAuth(req) {
   const pw = req.headers.get("x-password");
   if (!pw || !state.passwordHash) return false;
   return Bun.password.verify(pw, state.passwordHash);
 }
 
-// ── Dashboard ─────────────────────────────────────────────────────────────────
+// ── Dashboard ──────────────────────────────────────────────────────────────────
 const dashboardHTML = readFileSync(join(__dir, "dashboard.html"), "utf8");
 
 async function handleDashboard(req, url) {
   const sub = url.pathname.slice("/__dashboard".length) || "/";
   const method = req.method;
 
-  // Serve UI
-  if (sub === "/" && method === "GET") {
+  if (sub === "/" && method === "GET")
     return new Response(dashboardHTML, { headers: { "Content-Type": "text/html" } });
-  }
 
-  // Public endpoints
-  if (sub === "/status" && method === "GET") {
+  if (sub === "/status" && method === "GET")
     return json({ setup: !!state.passwordHash });
-  }
 
   if (sub === "/setup" && method === "POST") {
     if (state.passwordHash) return json({ error: "Already set up" }, 400);
@@ -217,15 +295,11 @@ async function handleDashboard(req, url) {
     return json({ ok: true });
   }
 
-  // Auth required below
   if (!(await verifyAuth(req))) return json({ error: "Unauthorized" }, 401);
 
-  // Routes list
-  if (sub === "/routes" && method === "GET") {
-    return json(state.routes);
-  }
+  // ── Routes ────────────────────────────────────────────────────────────────
+  if (sub === "/routes" && method === "GET") return json(state.routes);
 
-  // Create route
   if (sub === "/routes" && method === "POST") {
     const r = await req.json();
     const route = {
@@ -243,23 +317,17 @@ async function handleDashboard(req, url) {
     return json(route, 201);
   }
 
-  // Logs endpoints (must check before /routes/:id)
-  const logsMatch = sub.match(/^\/routes\/([^/]+)\/logs$/);
-  if (logsMatch) {
-    const id = logsMatch[1];
+  const routeLogsMatch = sub.match(/^\/routes\/([^/]+)\/logs$/);
+  if (routeLogsMatch) {
+    const id = routeLogsMatch[1];
     if (method === "GET") return json(getLogs.all(id));
-    if (method === "DELETE") {
-      clearLogs.run(id);
-      return json({ ok: true });
-    }
+    if (method === "DELETE") { clearLogs.run(id); return json({ ok: true }); }
   }
 
-  // Single route CRUD
   const routeMatch = sub.match(/^\/routes\/([^/]+)$/);
   if (routeMatch) {
     const id = routeMatch[1];
     const idx = state.routes.findIndex((r) => r.id === id);
-
     if (method === "PUT" || method === "PATCH") {
       if (idx === -1) return json({ error: "Not found" }, 404);
       const updates = await req.json();
@@ -267,7 +335,6 @@ async function handleDashboard(req, url) {
       saveState();
       return json(state.routes[idx]);
     }
-
     if (method === "DELETE") {
       if (idx === -1) return json({ error: "Not found" }, 404);
       state.routes.splice(idx, 1);
@@ -277,47 +344,119 @@ async function handleDashboard(req, url) {
     }
   }
 
+  // ── Crons ─────────────────────────────────────────────────────────────────
+  if (sub === "/crons" && method === "GET") {
+    return json(state.crons.map((c) => ({ ...c, lastRun: cronLastRun.get(c.id) || null })));
+  }
+
+  if (sub === "/crons" && method === "POST") {
+    const c = await req.json();
+    const cron = {
+      id: crypto.randomUUID(),
+      name: c.name || "unnamed",
+      schedule: c.schedule || "1h",
+      code: c.code || "",
+      enabled: c.enabled ?? true,
+      logging: c.logging ?? false,
+    };
+    state.crons.push(cron);
+    saveState();
+    scheduleCrons();
+    return json({ ...cron, lastRun: null }, 201);
+  }
+
+  const cronLogsMatch = sub.match(/^\/crons\/([^/]+)\/logs$/);
+  if (cronLogsMatch) {
+    const id = cronLogsMatch[1];
+    if (method === "GET") return json(getLogs.all(id));
+    if (method === "DELETE") { clearLogs.run(id); return json({ ok: true }); }
+  }
+
+  const cronRunMatch = sub.match(/^\/crons\/([^/]+)\/run$/);
+  if (cronRunMatch && method === "POST") {
+    const cron = state.crons.find((c) => c.id === cronRunMatch[1]);
+    if (!cron) return json({ error: "Not found" }, 404);
+    runCron(cron);
+    return json({ ok: true });
+  }
+
+  const cronMatch = sub.match(/^\/crons\/([^/]+)$/);
+  if (cronMatch) {
+    const id = cronMatch[1];
+    const idx = state.crons.findIndex((c) => c.id === id);
+    if (method === "PUT" || method === "PATCH") {
+      if (idx === -1) return json({ error: "Not found" }, 404);
+      const updates = await req.json();
+      state.crons[idx] = { ...state.crons[idx], ...updates, id };
+      saveState();
+      scheduleCrons();
+      return json(state.crons[idx]);
+    }
+    if (method === "DELETE") {
+      if (idx === -1) return json({ error: "Not found" }, 404);
+      state.crons.splice(idx, 1);
+      clearLogs.run(id);
+      saveState();
+      scheduleCrons();
+      return json({ ok: true });
+    }
+  }
+
+  // ── Store browse (dashboard only) ─────────────────────────────────────────
+  if (sub === "/store" && method === "GET") {
+    return json(_sCols.all());
+  }
+
+  const storeColMatch = sub.match(/^\/store\/([^/]+)$/);
+  if (storeColMatch) {
+    const col = decodeURIComponent(storeColMatch[1]);
+    if (method === "GET") {
+      return json(_sAll.all(col).map(r => ({ key: r.key, value: JSON.parse(r.value), updated_at: r.updated_at })));
+    }
+    if (method === "DELETE") { _sDrop.run(col); return json({ ok: true }); }
+  }
+
+  const storeEntryMatch = sub.match(/^\/store\/([^/]+)\/([^/]+)$/);
+  if (storeEntryMatch && method === "DELETE") {
+    _sDel.run(decodeURIComponent(storeEntryMatch[1]), decodeURIComponent(storeEntryMatch[2]));
+    return json({ ok: true });
+  }
+
   return json({ error: "Not found" }, 404);
 }
 
-// ── Server ────────────────────────────────────────────────────────────────────
-Bun.serve({
+// ── Server ─────────────────────────────────────────────────────────────────────
+const server = Bun.serve({
   port: PORT,
-  async fetch(req) {
+  async fetch(req, server) {
     const url = new URL(req.url);
 
-    // Dashboard
-    if (url.pathname.startsWith("/__dashboard")) {
+    if (url.pathname.startsWith("/__dashboard"))
       return handleDashboard(req, url);
-    }
 
-    // CORS preflight for user routes
     if (req.method === "OPTIONS") {
       for (const route of state.routes) {
         if (!route.enabled) continue;
-        if (matchPath(route.path, url.pathname) !== null) {
+        if (matchPath(route.path, url.pathname) !== null)
           return new Response(null, { status: 204, headers: corsHeaders(route) });
-        }
       }
       return new Response(null, { status: 204 });
     }
 
-    // Match user routes
     for (const route of state.routes) {
       if (!route.enabled || route.method !== req.method) continue;
       const params = matchPath(route.path, url.pathname);
       if (params === null) continue;
-
-      if (isRateLimited(route)) {
+      if (isRateLimited(route, req, server))
         return json({ error: "Rate limit exceeded" }, 429, corsHeaders(route));
-      }
-
       return runRoute(route, req, url, params);
     }
 
     return json({ error: "Not found" }, 404);
   },
 });
+
+scheduleCrons();
 
 console.log(`\nbleh running on :${PORT}`);
 console.log(`Dashboard → http://localhost:${PORT}/__dashboard\n`);

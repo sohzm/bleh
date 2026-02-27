@@ -1,3 +1,3 @@
-![bleh](/a7/bleh.jpg)
+![bleh](/a7/bleh.png)
 
-spawn apis with eaze
+run compute as you wish

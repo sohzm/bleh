@@ -30,7 +30,14 @@
     .lnk-red { color: #990000; }
     .lnk-red:hover { color: #cc0000; }
 
-    /* ── Auth page ──────────────────────────────────────────────────────── */
+    /* ── Container ──────────────────────────────────────────────────────── */
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ── Auth ───────────────────────────────────────────────────────────── */
     #auth-page {
       min-height: 100vh;
       background: #f0f0f0;
@@ -44,45 +51,45 @@
       width: 340px;
       background: #fff;
       border: 1px solid #bbb;
-      padding: 24px 20px;
+      padding: 28px 24px;
     }
 
-    #auth-box h2 { font-size: 15px; margin-bottom: 4px; }
-    #auth-box .sub { color: #888; font-size: 11px; margin-bottom: 18px; }
+    #auth-box h2 { font-size: 16px; margin-bottom: 5px; }
+    #auth-box .sub { color: #888; font-size: 11px; margin-bottom: 20px; line-height: 1.5; }
 
-    .arow { margin-bottom: 10px; }
-    .arow label { display: block; font-weight: bold; font-size: 12px; margin-bottom: 3px; }
-    .arow input[type=password] {
-      width: 100%;
-      border: 1px solid #aaa;
-      padding: 5px 6px;
-    }
+    .arow { margin-bottom: 12px; }
+    .arow label { display: block; font-weight: bold; font-size: 11px; margin-bottom: 4px; }
+    .arow input[type=password] { width: 100%; border: 1px solid #aaa; padding: 6px 8px; }
     .arow input:focus { border-color: #666; outline: none; }
 
     .abtn {
       background: #6e45a2;
       color: #fff;
       border: 1px solid #5a3688;
-      padding: 5px 14px;
+      padding: 6px 16px;
       cursor: pointer;
-      font-size: 12px;
       margin-top: 4px;
     }
     .abtn:hover { background: #5a3688; }
 
-    .err { color: #cc0000; font-size: 12px; margin-top: 8px; }
+    .err { color: #cc0000; font-size: 12px; margin-top: 8px; min-height: 16px; }
 
-    /* ── App ────────────────────────────────────────────────────────────── */
+    /* ── Top bar ────────────────────────────────────────────────────────── */
     #topbar {
       background: #6e45a2;
       color: #fff;
-      padding: 6px 12px;
+      padding: 8px 0;
+    }
+    #topbar .inner {
       display: flex;
       align-items: baseline;
-      gap: 10px;
+      gap: 12px;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 24px;
     }
     #topbar .site-name { font-size: 20px; font-weight: bold; }
-    #topbar .sep { color: #b89ad4; }
+    #topbar .tsep { color: #b89ad4; }
     #topbar .tlink {
       color: #e0d0f5;
       text-decoration: none;
@@ -93,25 +100,37 @@
       font-family: inherit;
     }
     #topbar .tlink:hover { text-decoration: underline; color: #fff; }
-    #topbar .tlink.new { font-weight: bold; color: #fff; }
+    #topbar .tlink.bold { font-weight: bold; color: #fff; }
 
-    #main { padding: 12px 14px; }
+    /* ── Main content ───────────────────────────────────────────────────── */
+    #main { padding: 20px 0 0; }
 
-    #route-count { font-size: 12px; color: #888; margin-bottom: 6px; }
+    .section { margin-bottom: 32px; }
 
-    /* ── Routes table ───────────────────────────────────────────────────── */
-    table.rtbl { border-collapse: collapse; width: 100%; margin-top: 6px; }
+    .section-head {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 5px;
+      margin-bottom: 12px;
+    }
+    .section-head h3 { font-size: 13px; font-weight: bold; }
+    .section-head .count { color: #999; font-size: 11px; }
+
+    /* ── Tables ─────────────────────────────────────────────────────────── */
+    table.rtbl { border-collapse: collapse; width: 100%; }
     table.rtbl th {
       background: #efefef;
       border: 1px solid #ccc;
-      padding: 4px 8px;
+      padding: 6px 10px;
       text-align: left;
       font-size: 11px;
       white-space: nowrap;
     }
     table.rtbl td {
       border: 1px solid #ddd;
-      padding: 5px 8px;
+      padding: 7px 10px;
       vertical-align: middle;
     }
     table.rtbl tbody tr:hover td { background: #f5f0ff; }
@@ -121,10 +140,17 @@
     .m-PUT    { color: #885500; font-weight: bold; font-size: 11px; }
     .m-DELETE { color: #990000; font-weight: bold; font-size: 11px; }
     .m-PATCH  { color: #660066; font-weight: bold; font-size: 11px; }
+    .m-CRON   { color: #445566; font-weight: bold; font-size: 11px; }
 
-    .empty-row td { color: #888; font-style: italic; text-align: center; padding: 20px; }
+    .empty-row td {
+      color: #999;
+      font-style: italic;
+      text-align: center;
+      padding: 16px 10px;
+      border: 1px solid #ddd;
+    }
 
-    /* ── Modal ──────────────────────────────────────────────────────────── */
+    /* ── Modals ─────────────────────────────────────────────────────────── */
     .modal-bg {
       position: fixed; inset: 0;
       background: rgba(0,0,0,0.45);
@@ -138,7 +164,8 @@
     .modal {
       background: #fff;
       border: 1px solid #666;
-      width: 680px;
+      width: 700px;
+      max-width: 95vw;
       max-height: 88vh;
       overflow-y: auto;
     }
@@ -146,41 +173,37 @@
     .modal-head {
       background: #efefef;
       border-bottom: 1px solid #ccc;
-      padding: 7px 12px;
+      padding: 8px 14px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       position: sticky; top: 0; z-index: 1;
     }
     .modal-head h3 { font-size: 13px; margin: 0; }
-    .modal-x {
-      background: none; border: none;
-      color: #666; cursor: pointer;
-      font-size: 18px; line-height: 1;
-    }
+    .modal-x { background: none; border: none; color: #666; cursor: pointer; font-size: 20px; line-height: 1; }
     .modal-x:hover { color: #000; }
 
-    .modal-body { padding: 14px; }
+    .modal-body { padding: 18px; }
 
     .modal-foot {
       border-top: 1px solid #ccc;
-      padding: 8px 12px;
+      padding: 10px 14px;
       background: #fafafa;
       display: flex;
       justify-content: space-between;
       align-items: center;
       position: sticky; bottom: 0; z-index: 1;
     }
-    .modal-foot .foot-right { display: flex; gap: 8px; align-items: center; }
+    .foot-right { display: flex; gap: 8px; align-items: center; }
 
-    /* ── Forms ──────────────────────────────────────────────────────────── */
-    .frow { margin-bottom: 12px; }
-    .frow label { display: block; font-weight: bold; font-size: 11px; margin-bottom: 3px; }
+    /* ── Form elements ──────────────────────────────────────────────────── */
+    .frow { margin-bottom: 14px; }
+    .frow label { display: block; font-weight: bold; font-size: 11px; margin-bottom: 4px; }
     .frow input[type=text],
     .frow input[type=number],
     .frow select {
       border: 1px solid #aaa;
-      padding: 4px 6px;
+      padding: 5px 7px;
       background: #fff;
       width: 100%;
     }
@@ -188,115 +211,111 @@
 
     .frow textarea {
       border: 1px solid #aaa;
-      padding: 6px;
+      padding: 8px;
       background: #fff;
       width: 100%;
-      min-height: 230px;
+      min-height: 240px;
       resize: vertical;
       font-family: 'Courier New', Courier, monospace;
       font-size: 12px;
-      line-height: 1.55;
+      line-height: 1.6;
       tab-size: 2;
     }
     .frow textarea:focus { border-color: #555; outline: none; }
 
-    .frow-2col { display: flex; gap: 10px; }
+    .frow-2col { display: flex; gap: 12px; }
     .frow-2col .frow { flex: 1; }
 
-    .hint { font-size: 11px; color: #999; margin-top: 3px; line-height: 1.5; }
+    .hint { font-size: 11px; color: #999; margin-top: 4px; line-height: 1.5; }
     .hint code { font-family: 'Courier New', monospace; background: #f5f5f5; padding: 1px 3px; }
 
-    .frow-check { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; font-size: 12px; }
+    .frow-check {
+      display: flex; align-items: center; gap: 7px;
+      margin-bottom: 10px; font-size: 12px;
+    }
     .frow-check input[type=checkbox] { margin: 0; cursor: pointer; }
-    .frow-check label { cursor: pointer; }
+    .frow-check label { cursor: pointer; margin: 0; font-weight: normal; }
 
     .rl-sub { display: flex; gap: 8px; margin-top: 6px; }
-    .rl-sub input { flex: 1; width: auto; }
-    .rl-sub select { flex: 2; width: auto; }
-    .rl-sub input, .rl-sub select { border: 1px solid #aaa; padding: 4px 6px; }
+    .rl-sub input { flex: 1; border: 1px solid #aaa; padding: 5px 7px; }
+    .rl-sub select { flex: 2; border: 1px solid #aaa; padding: 5px 7px; }
+    .rl-sub input:focus, .rl-sub select:focus { border-color: #555; outline: none; }
 
-    .sbtn {
-      background: #efefef;
-      border: 1px solid #aaa;
-      padding: 4px 12px;
-      cursor: pointer;
-      font-size: 12px;
-    }
+    .sbtn { background: #efefef; border: 1px solid #aaa; padding: 5px 14px; cursor: pointer; font-size: 12px; }
     .sbtn:hover { background: #e0e0e0; }
-    .sbtn-primary {
-      background: #6e45a2;
-      border: 1px solid #5a3688;
-      color: #fff;
-    }
+    .sbtn-primary { background: #6e45a2; border-color: #5a3688; color: #fff; }
     .sbtn-primary:hover { background: #5a3688; }
-    .sbtn-danger {
-      background: #fff;
-      border: 1px solid #cc0000;
-      color: #cc0000;
-    }
+    .sbtn-danger { background: #fff; border: 1px solid #cc0000; color: #cc0000; }
     .sbtn-danger:hover { background: #fff0f0; }
 
     /* ── Logs table ─────────────────────────────────────────────────────── */
-    .logs-modal { width: 820px; }
+    .logs-modal { width: 860px; }
 
     table.ltbl { border-collapse: collapse; width: 100%; font-size: 12px; }
-    table.ltbl th {
-      background: #efefef;
-      border: 1px solid #ccc;
-      padding: 4px 6px;
-      text-align: left;
-      font-size: 11px;
-      white-space: nowrap;
-    }
-    table.ltbl td { border: 1px solid #ddd; padding: 4px 6px; vertical-align: top; }
+    table.ltbl th { background: #efefef; border: 1px solid #ccc; padding: 5px 8px; text-align: left; font-size: 11px; white-space: nowrap; }
+    table.ltbl td { border: 1px solid #ddd; padding: 5px 8px; vertical-align: top; }
     table.ltbl tbody tr:hover td { background: #f5f0ff; }
     table.ltbl .exp-row:hover td { background: transparent; cursor: default; }
 
     .s-ok  { color: #006600; font-weight: bold; }
     .s-err { color: #cc0000; font-weight: bold; }
 
-    .trunc {
-      display: block;
-      max-width: 180px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      color: #666;
-      cursor: pointer;
-    }
+    .trunc { display: block; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #666; cursor: pointer; }
     .trunc:hover { color: #000; }
 
     .exp-box {
-      background: #f8f8f8;
-      border: 1px solid #ddd;
+      background: #f8f8f8; border: 1px solid #ddd;
       padding: 6px 8px;
-      font-family: 'Courier New', Courier, monospace;
-      font-size: 11px;
-      white-space: pre-wrap;
-      word-break: break-all;
-      max-height: 200px;
-      overflow-y: auto;
-      margin-top: 4px;
+      font-family: 'Courier New', Courier, monospace; font-size: 11px;
+      white-space: pre-wrap; word-break: break-all;
+      max-height: 200px; overflow-y: auto; margin-top: 4px;
     }
 
-    .logs-actions { margin-bottom: 10px; }
+    /* ── Docs modal ─────────────────────────────────────────────────────── */
+    .docs-modal { width: 720px; }
+    .docs-modal h4 { font-size: 13px; margin: 16px 0 8px; border-bottom: 1px solid #eee; padding-bottom: 4px; }
+    .docs-modal h4:first-child { margin-top: 0; }
+    .docs-modal p { margin-bottom: 8px; line-height: 1.5; }
+    .docs-modal pre {
+      background: #f5f5f5; border: 1px solid #e0e0e0;
+      padding: 10px 12px;
+      font-family: 'Courier New', Courier, monospace; font-size: 11px;
+      line-height: 1.6;
+      white-space: pre; overflow-x: auto;
+      margin-bottom: 12px;
+    }
+    .docs-modal code { font-family: 'Courier New', monospace; background: #f0f0f0; padding: 1px 4px; font-size: 11px; }
+    .docs-modal table.vtbl { border-collapse: collapse; width: 100%; margin-bottom: 12px; font-size: 12px; }
+    .docs-modal table.vtbl td { border: 1px solid #ddd; padding: 5px 9px; vertical-align: top; }
+    .docs-modal table.vtbl tr:nth-child(odd) td { background: #fafafa; }
 
-    /* ── Misc ───────────────────────────────────────────────────────────── */
+    /* ── Footer ─────────────────────────────────────────────────────────── */
+    footer {
+      border-top: 1px solid #ddd;
+      padding: 14px 0 20px;
+      margin-top: 32px;
+      color: #999;
+      font-size: 11px;
+    }
+    footer a { color: #999; }
+    footer a:hover { color: #666; }
+
+    /* ── Utils ──────────────────────────────────────────────────────────── */
     .hidden { display: none !important; }
-    hr { border: none; border-top: 1px solid #ddd; margin: 10px 0; }
+    hr.sec { border: none; border-top: 1px solid #ddd; margin: 24px 0; }
   </style>
 </head>
 <body>
 
-<!-- ── Auth page ──────────────────────────────────────────────────────────── -->
+<!-- ── Auth ───────────────────────────────────────────────────────────────── -->
 <div id="auth-page">
   <div id="auth-box">
 
     <div id="screen-setup" style="display:none">
       <h2>welcome to bleh</h2>
-      <p class="sub">first time here — set a password for your dashboard</p>
+      <p class="sub">first time setup &mdash; set a password for your dashboard</p>
       <div class="arow">
-        <label for="setup-pw">Password</label>
+        <label>Password</label>
         <input type="password" id="setup-pw" placeholder="at least 4 characters"
                onkeydown="if(event.key==='Enter') doSetup()" />
       </div>
@@ -306,10 +325,10 @@
 
     <div id="screen-login" style="display:none">
       <h2>bleh</h2>
-      <p class="sub">api spawner dashboard</p>
+      <p class="sub">api spawner &mdash; enter your password</p>
       <div class="arow">
-        <label for="login-pw">Password</label>
-        <input type="password" id="login-pw" placeholder=""
+        <label>Password</label>
+        <input type="password" id="login-pw"
                onkeydown="if(event.key==='Enter') doLogin()" />
       </div>
       <button class="abtn" onclick="doLogin()">enter</button>
@@ -321,14 +340,14 @@
 
     <div id="screen-forgot" style="display:none">
       <h2>reset password</h2>
-      <p class="sub">enter the PASSPHRASE from your server env</p>
+      <p class="sub">enter the PASSPHRASE from your server env to reset</p>
       <div class="arow">
-        <label for="forgot-pp">Passphrase</label>
-        <input type="password" id="forgot-pp" placeholder="" />
+        <label>Passphrase</label>
+        <input type="password" id="forgot-pp" />
       </div>
       <div class="arow">
-        <label for="forgot-pw">New password</label>
-        <input type="password" id="forgot-pw" placeholder=""
+        <label>New password</label>
+        <input type="password" id="forgot-pw"
                onkeydown="if(event.key==='Enter') doForgot()" />
       </div>
       <button class="abtn" onclick="doForgot()">reset</button>
@@ -341,35 +360,84 @@
   </div>
 </div>
 
-<!-- ── Dashboard ──────────────────────────────────────────────────────────── -->
+<!-- ── App ────────────────────────────────────────────────────────────────── -->
 <div id="app" class="hidden">
+
   <div id="topbar">
-    <span class="site-name">bleh</span>
-    <span class="sep">|</span>
-    <button class="tlink new" onclick="openRouteModal(null)">+ new route</button>
-    <span class="sep">|</span>
-    <button class="tlink" onclick="doLogout()">lock</button>
+    <div class="inner">
+      <span class="site-name">bleh</span>
+      <span class="tsep">|</span>
+      <button class="tlink bold" onclick="openRouteModal(null)">+ new route</button>
+      <span class="tsep">|</span>
+      <button class="tlink bold" onclick="openCronModal(null)">+ new cron</button>
+      <span class="tsep">|</span>
+      <button class="tlink" onclick="openStoreModal()">store</button>
+      <span class="tsep">|</span>
+      <button class="tlink" onclick="document.getElementById('docs-modal').classList.remove('hidden')">docs</button>
+      <span class="tsep">|</span>
+      <button class="tlink" onclick="doLogout()">lock</button>
+    </div>
   </div>
 
   <div id="main">
-    <div id="route-count"></div>
+    <div class="container">
 
-    <table class="rtbl" id="routes-table">
-      <thead>
-        <tr>
-          <th>method</th>
-          <th>path</th>
-          <th>cors</th>
-          <th>logging</th>
-          <th>rate limit</th>
-          <th>enabled</th>
-          <th>actions</th>
-        </tr>
-      </thead>
-      <tbody id="routes-body">
-        <tr class="empty-row"><td colspan="7">no routes yet</td></tr>
-      </tbody>
-    </table>
+      <!-- Routes -->
+      <div class="section">
+        <div class="section-head">
+          <h3>routes</h3>
+          <span class="count" id="route-count"></span>
+          <button class="lnk" style="font-size:11px" onclick="openRouteModal(null)">[+ add]</button>
+        </div>
+        <table class="rtbl">
+          <thead>
+            <tr>
+              <th>method</th>
+              <th>path</th>
+              <th>cors</th>
+              <th>logging</th>
+              <th>rate limit</th>
+              <th>enabled</th>
+              <th>actions</th>
+            </tr>
+          </thead>
+          <tbody id="routes-body">
+            <tr class="empty-row"><td colspan="7">no routes yet</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Crons -->
+      <div class="section">
+        <div class="section-head">
+          <h3>cron jobs</h3>
+          <span class="count" id="cron-count"></span>
+          <button class="lnk" style="font-size:11px" onclick="openCronModal(null)">[+ add]</button>
+        </div>
+        <table class="rtbl">
+          <thead>
+            <tr>
+              <th>name</th>
+              <th>schedule</th>
+              <th>last run</th>
+              <th>logging</th>
+              <th>enabled</th>
+              <th>actions</th>
+            </tr>
+          </thead>
+          <tbody id="crons-body">
+            <tr class="empty-row"><td colspan="6">no cron jobs yet</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <footer>
+        bleh &mdash; simple api spawner &nbsp;&middot;&nbsp;
+        <a href="https://github.com/soham/bleh" target="_blank">github.com/soham/bleh</a>
+        &nbsp;&middot;&nbsp; support &amp; issues
+      </footer>
+
+    </div>
   </div>
 </div>
 
@@ -384,36 +452,34 @@
 
       <div class="frow-2col">
         <div class="frow" style="flex:2">
-          <label for="r-path">Path</label>
+          <label>Path</label>
           <input type="text" id="r-path" placeholder="/your-endpoint  or  /user/:id" />
         </div>
         <div class="frow" style="flex:1">
-          <label for="r-method">Method</label>
+          <label>Method</label>
           <select id="r-method">
-            <option>GET</option>
-            <option>POST</option>
-            <option>PUT</option>
-            <option>DELETE</option>
-            <option>PATCH</option>
+            <option>GET</option><option>POST</option><option>PUT</option>
+            <option>DELETE</option><option>PATCH</option>
           </select>
         </div>
       </div>
 
       <div class="frow">
-        <label for="r-code">Handler code</label>
+        <label>Handler code</label>
         <textarea id="r-code"
           placeholder="// available: req, body, headers, query, params&#10;&#10;const data = await fetch('https://api.example.com/').then(r => r.json())&#10;return { data }"></textarea>
         <div class="hint">
           <code>req</code> &nbsp;<code>body</code> &nbsp;<code>headers</code> &nbsp;<code>query</code> &nbsp;<code>params</code>
-          &mdash; return any value or a <code>new Response(...)</code>
+          &mdash; return any value or a <code>new Response(...)</code> &mdash;
+          <button class="lnk" style="font-size:11px" onclick="document.getElementById('docs-modal').classList.remove('hidden')">see docs</button>
         </div>
       </div>
 
-      <hr>
+      <hr class="sec" style="margin:10px 0 14px">
 
       <div class="frow-2col">
         <div class="frow">
-          <label for="r-cors-type">CORS</label>
+          <label>CORS</label>
           <select id="r-cors-type" onchange="onCorsChange()">
             <option value="">disabled</option>
             <option value="*">allow all  (*)</option>
@@ -421,7 +487,7 @@
           </select>
         </div>
         <div class="frow" id="cors-custom-wrap" style="display:none">
-          <label for="r-cors-custom">Origin URL</label>
+          <label>Origin URL</label>
           <input type="text" id="r-cors-custom" placeholder="https://myapp.com" />
         </div>
       </div>
@@ -435,9 +501,9 @@
         <input type="checkbox" id="r-rl" onchange="onRlChange()">
         <label for="r-rl">Rate limiting</label>
       </div>
-      <div id="rl-wrap" style="display:none; margin-bottom:10px; margin-left:18px">
+      <div id="rl-wrap" style="display:none; margin: 0 0 12px 20px">
         <div class="rl-sub">
-          <input type="number" id="r-rl-req" placeholder="100" min="1" style="width:80px" />
+          <input type="number" id="r-rl-req" placeholder="100" min="1" style="width:80px;flex:none" />
           <select id="r-rl-win">
             <option value="10s">per 10 seconds</option>
             <option value="1m" selected>per minute</option>
@@ -446,6 +512,10 @@
             <option value="1h">per hour</option>
             <option value="1d">per day</option>
           </select>
+        </div>
+        <div class="frow-check" style="margin-top:7px">
+          <input type="checkbox" id="r-rl-ip">
+          <label for="r-rl-ip">Per IP address (instead of global)</label>
         </div>
       </div>
 
@@ -462,6 +532,65 @@
   </div>
 </div>
 
+<!-- ── Cron modal ─────────────────────────────────────────────────────────── -->
+<div class="modal-bg hidden" id="cron-modal" onclick="bgClose(event,'cron-modal')">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="cron-modal-title">new cron job</h3>
+      <button class="modal-x" onclick="closeCronModal()">&#215;</button>
+    </div>
+    <div class="modal-body">
+
+      <div class="frow-2col">
+        <div class="frow" style="flex:2">
+          <label>Name</label>
+          <input type="text" id="c-name" placeholder="e.g. daily cleanup" />
+        </div>
+        <div class="frow" style="flex:1">
+          <label>Schedule</label>
+          <select id="c-schedule">
+            <option value="30s">every 30 seconds</option>
+            <option value="1m">every minute</option>
+            <option value="5m">every 5 minutes</option>
+            <option value="15m">every 15 minutes</option>
+            <option value="30m">every 30 minutes</option>
+            <option value="1h" selected>every hour</option>
+            <option value="6h">every 6 hours</option>
+            <option value="12h">every 12 hours</option>
+            <option value="1d">every day</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="frow">
+        <label>Code</label>
+        <textarea id="c-code"
+          placeholder="// fetch is available globally&#10;// no req / body / headers in cron context&#10;&#10;await fetch('https://mysite.com/ping')"></textarea>
+        <div class="hint">
+          no request context &mdash; <code>fetch</code> and all Bun globals available &mdash;
+          <button class="lnk" style="font-size:11px" onclick="document.getElementById('docs-modal').classList.remove('hidden')">see docs</button>
+        </div>
+      </div>
+
+      <div class="frow-check">
+        <input type="checkbox" id="c-logging">
+        <label for="c-logging">Log runs to SQLite</label>
+      </div>
+
+    </div>
+    <div class="modal-foot">
+      <div>
+        <button class="sbtn sbtn-danger hidden" id="cron-del" onclick="deleteCron()">delete</button>
+      </div>
+      <div class="foot-right">
+        <button class="sbtn hidden" id="cron-run-btn" onclick="runCronNowFromModal()">run now</button>
+        <button class="sbtn" onclick="closeCronModal()">cancel</button>
+        <button class="sbtn sbtn-primary" onclick="saveCron()">save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ── Logs modal ─────────────────────────────────────────────────────────── -->
 <div class="modal-bg hidden" id="logs-modal" onclick="bgClose(event,'logs-modal')">
   <div class="modal logs-modal">
@@ -470,55 +599,214 @@
       <button class="modal-x" onclick="closeLogsModal()">&#215;</button>
     </div>
     <div class="modal-body">
-      <div class="logs-actions">
+      <div style="margin-bottom:10px">
         <button class="sbtn sbtn-danger" onclick="doClearLogs()">clear logs</button>
       </div>
-      <table class="ltbl">
-        <thead>
-          <tr>
-            <th>time</th>
-            <th>status</th>
-            <th>method</th>
-            <th>request body</th>
-            <th>response</th>
-          </tr>
-        </thead>
-        <tbody id="logs-body"></tbody>
-      </table>
-      <div id="logs-empty" class="hidden" style="color:#888;font-style:italic;padding:16px 0">
-        no logs yet for this route
+      <div style="overflow-x:auto">
+        <table class="ltbl">
+          <thead>
+            <tr>
+              <th>time</th><th>status</th><th>method</th>
+              <th>request body</th><th>response</th>
+            </tr>
+          </thead>
+          <tbody id="logs-body"></tbody>
+        </table>
+        <div id="logs-empty" class="hidden" style="color:#999;font-style:italic;padding:16px 0">
+          no logs yet
+        </div>
       </div>
     </div>
   </div>
 </div>
 
+<!-- ── Store modal ────────────────────────────────────────────────────────── -->
+<div class="modal-bg hidden" id="store-modal" onclick="bgClose(event,'store-modal')">
+  <div class="modal" style="width:720px">
+    <div class="modal-head">
+      <h3 id="store-modal-title">store</h3>
+      <button class="modal-x" onclick="closeStoreModal()">&#215;</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Collections list -->
+      <div id="store-cols-view">
+        <p style="margin-bottom:12px;color:#666;font-size:12px;line-height:1.5">
+          persistent key-value storage &mdash; available as <code style="font-family:monospace;background:#f5f5f5;padding:1px 4px">store</code> in all routes and cron jobs
+        </p>
+        <table class="rtbl" id="store-cols-table">
+          <thead><tr><th>collection</th><th>items</th><th></th></tr></thead>
+          <tbody id="store-cols-body"></tbody>
+        </table>
+        <div id="store-cols-empty" class="hidden" style="color:#999;font-style:italic;padding:16px 0">
+          nothing stored yet &mdash; use <code style="font-family:monospace;background:#f5f5f5;padding:1px 3px">store.set('collection', 'key', value)</code> in a route or cron
+        </div>
+      </div>
+
+      <!-- Entries list -->
+      <div id="store-entries-view" style="display:none">
+        <p style="margin-bottom:12px">
+          <button class="lnk" onclick="showStoreCols()">&larr; collections</button>
+          &nbsp;&nbsp;<strong id="store-entries-col"></strong>
+          &nbsp;&nbsp;<button class="lnk lnk-red" onclick="dropCollection()">drop collection</button>
+        </p>
+        <table class="rtbl">
+          <thead><tr><th>key</th><th>value</th><th>updated</th><th></th></tr></thead>
+          <tbody id="store-entries-body"></tbody>
+        </table>
+        <div id="store-entries-empty" class="hidden" style="color:#999;font-style:italic;padding:16px 0">
+          collection is empty
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ── Docs modal ─────────────────────────────────────────────────────────── -->
+<div class="modal-bg hidden" id="docs-modal" onclick="bgClose(event,'docs-modal')">
+  <div class="modal docs-modal">
+    <div class="modal-head">
+      <h3>documentation</h3>
+      <button class="modal-x" onclick="document.getElementById('docs-modal').classList.add('hidden')">&#215;</button>
+    </div>
+    <div class="modal-body" style="font-size:12px">
+
+      <h4>Route handlers</h4>
+      <p><strong>Available variables in your code:</strong></p>
+      <table class="vtbl">
+        <tr><td><code>req</code></td><td>Raw Bun <code>Request</code> object</td></tr>
+        <tr><td><code>body</code></td><td>Parsed JSON body, or raw text string if not JSON</td></tr>
+        <tr><td><code>headers</code></td><td>Request headers as a plain object <code>{ 'content-type': '...' }</code></td></tr>
+        <tr><td><code>query</code></td><td>URL search params &mdash; <code>?name=world</code> &rarr; <code>{ name: 'world' }</code></td></tr>
+        <tr><td><code>params</code></td><td>Path params &mdash; route <code>/user/:id</code> &rarr; <code>{ id: '...' }</code></td></tr>
+      </table>
+      <p><strong>Return values:</strong></p>
+<pre>return { any: 'object' }          // 200 JSON response
+return "a string"                  // 200 text/plain
+return new Response(body, opts)    // full control — set status, headers, etc.</pre>
+      <p><strong>Examples:</strong></p>
+<pre>// proxy an external API
+const data = await fetch('https://api.openai.com/v1/models', {
+  headers: { Authorization: 'Bearer sk-...' }
+}).then(r => r.json())
+return data
+
+// check auth header
+if (headers.authorization !== 'Bearer mytoken')
+  return new Response('Unauthorized', { status: 401 })
+return { secret: 'stuff' }
+
+// use path params  (route: /user/:id)
+const user = await fetch(`https://api.example.com/users/${params.id}`).then(r => r.json())
+return user
+
+// use query params  (?name=world)
+return { hello: query.name || 'world' }
+
+// read POST body and call an API
+const { email, message } = body
+await fetch('https://hooks.slack.com/services/xxx', {
+  method: 'POST',
+  body: JSON.stringify({ text: `${email}: ${message}` })
+})
+return { sent: true }
+
+// custom status code
+return new Response(JSON.stringify({ error: 'not found' }), {
+  status: 404,
+  headers: { 'Content-Type': 'application/json' }
+})</pre>
+
+      <h4>Cron jobs</h4>
+      <p>Run on a schedule in the background. No request context available. <code>fetch</code> and all Bun globals work normally.</p>
+<pre>// health ping
+await fetch('https://mysite.com/ping')
+
+// scheduled data sync
+const data = await fetch('https://api.example.com/export').then(r => r.json())
+await fetch('https://mydb.example.com/import', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify(data)
+})
+
+// post to slack on a schedule
+await fetch('https://hooks.slack.com/services/xxx', {
+  method: 'POST',
+  body: JSON.stringify({ text: 'daily report: all good' })
+})
+
+// cleanup job
+const res = await fetch('https://api.myservice.com/cleanup', { method: 'POST' })
+console.log('cleanup done:', await res.text())</pre>
+
+      <h4>Store API</h4>
+      <p>Persistent key-value storage scoped by collection. Synchronous. Available as <code>store</code> in both routes and cron jobs.</p>
+<pre>store.set('users', 'user-123', { name: 'John', age: 30 })  // upsert
+store.get('users', 'user-123')         // → { name: 'John', age: 30 } or null
+store.all('users')                     // → [{ key, value, updatedAt }]
+store.delete('users', 'user-123')      // remove one entry
+store.drop('users')                    // remove entire collection
+store.find('users', v => v.age > 18)  // filter — returns [{ key, value, updatedAt }]
+
+// hit counter
+const count = (store.get('stats', 'hits') || 0) + 1
+store.set('stats', 'hits', count)
+return { hits: count }
+
+// simple cache
+let data = store.get('cache', 'weather')
+if (!data) {
+  data = await fetch('https://api.weather.com/...').then(r => r.json())
+  store.set('cache', 'weather', data)
+}
+return data
+
+// persist POST body
+store.set('submissions', body.id, { ...body, createdAt: new Date().toISOString() })
+return { saved: true }
+
+// cron: write results to store so routes can read them
+const report = await fetch('https://api.example.com/stats').then(r => r.json())
+store.set('reports', 'latest', report)  // route can then return store.get('reports', 'latest')</pre>
+
+      <h4>Rate limiting</h4>
+      <p>
+        <strong>Global</strong> &mdash; counts all requests to the route regardless of who made them.<br>
+        <strong>Per IP</strong> &mdash; tracks each client IP separately. Uses <code>X-Forwarded-For</code> header
+        (set by Caddy/nginx) or falls back to the raw connection IP.
+      </p>
+
+    </div>
+  </div>
+</div>
+
 <script>
-  let pwd = null;
-  let routes = [];
-  let editingId = null;
-  let logsRouteId = null;
+  var pwd = null;
+  var routes = [];
+  var crons = [];
+  var editingId = null;
+  var editingCronId = null;
+  var logsApiPath = null;
 
   // ── API ─────────────────────────────────────────────────────────────────────
-  async function api(path, method, body) {
-    var res = await fetch('/__dashboard' + path, {
+  function api(path, method, body) {
+    return fetch('/__dashboard' + path, {
       method: method || 'GET',
-      headers: Object.assign(
-        { 'Content-Type': 'application/json' },
-        pwd ? { 'X-Password': pwd } : {}
-      ),
+      headers: Object.assign({ 'Content-Type': 'application/json' }, pwd ? { 'X-Password': pwd } : {}),
       body: body !== undefined ? JSON.stringify(body) : undefined
-    });
-    return res.json();
+    }).then(function(r) { return r.json(); });
   }
 
   // ── Auth ────────────────────────────────────────────────────────────────────
   function showScreen(name) {
-    ['setup', 'login', 'forgot'].forEach(function(s) {
+    ['setup','login','forgot'].forEach(function(s) {
       document.getElementById('screen-' + s).style.display = s === name ? '' : 'none';
     });
     setTimeout(function() {
-      var map = { setup: 'setup-pw', login: 'login-pw', forgot: 'forgot-pp' };
-      var el = document.getElementById(map[name]);
+      var m = { setup: 'setup-pw', login: 'login-pw', forgot: 'forgot-pp' };
+      var el = document.getElementById(m[name]);
       if (el) el.focus();
     }, 40);
   }
@@ -535,8 +823,7 @@
     var pw = document.getElementById('setup-pw').value;
     var res = await api('/setup', 'POST', { password: pw });
     if (res.error) return setErr('setup-err', res.error);
-    pwd = pw;
-    enterDashboard();
+    pwd = pw; enterDashboard();
   }
 
   async function doLogin() {
@@ -544,17 +831,17 @@
     var pw = document.getElementById('login-pw').value;
     var res = await api('/login', 'POST', { password: pw });
     if (!res.ok) return setErr('login-err', 'wrong password');
-    pwd = pw;
-    enterDashboard();
+    pwd = pw; enterDashboard();
   }
 
   async function doForgot() {
     setErr('forgot-err', '');
-    var pp = document.getElementById('forgot-pp').value;
-    var pw = document.getElementById('forgot-pw').value;
-    var res = await api('/forgot', 'POST', { passphrase: pp, password: pw });
+    var res = await api('/forgot', 'POST', {
+      passphrase: document.getElementById('forgot-pp').value,
+      password:   document.getElementById('forgot-pw').value
+    });
     if (res.error) return setErr('forgot-err', res.error);
-    pwd = pw;
+    pwd = document.getElementById('forgot-pw').value;
     enterDashboard();
   }
 
@@ -569,7 +856,7 @@
   async function enterDashboard() {
     document.getElementById('auth-page').classList.add('hidden');
     document.getElementById('app').classList.remove('hidden');
-    await loadRoutes();
+    await Promise.all([loadRoutes(), loadCrons()]);
   }
 
   // ── Routes ──────────────────────────────────────────────────────────────────
@@ -579,26 +866,21 @@
   }
 
   function renderRoutes() {
-    var tbody  = document.getElementById('routes-body');
-    var cnt    = document.getElementById('route-count');
-
-    cnt.textContent = routes.length
-      ? routes.length + ' route' + (routes.length !== 1 ? 's' : '')
-      : '';
+    var tbody = document.getElementById('routes-body');
+    var cnt   = document.getElementById('route-count');
+    cnt.textContent = routes.length ? '(' + routes.length + ')' : '';
 
     if (!routes.length) {
-      tbody.innerHTML = '<tr class="empty-row"><td colspan="7">no routes yet &mdash; <button class="lnk" onclick="openRouteModal(null)">create one</button></td></tr>';
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="7">no routes yet &mdash; <button class="lnk" onclick="openRouteModal(null)">add one</button></td></tr>';
       return;
     }
 
     tbody.innerHTML = routes.map(function(r) {
-      var corsLabel = !r.corsOrigin ? '&mdash;'
-        : r.corsOrigin === '*' ? 'all (*)'
-        : esc(r.corsOrigin);
-      var rlLabel = (r.rateLimit && r.rateLimit.enabled)
-        ? r.rateLimit.requests + ' / ' + r.rateLimit.window
+      var corsLabel = !r.corsOrigin ? '&mdash;' : r.corsOrigin === '*' ? 'all (*)' : esc(r.corsOrigin);
+      var rl = r.rateLimit;
+      var rlLabel = rl && rl.enabled
+        ? rl.requests + ' / ' + rl.window + (rl.perIp ? ' per IP' : '')
         : '&mdash;';
-
       return '<tr>'
         + '<td><span class="m-' + r.method + '">' + r.method + '</span></td>'
         + '<td><code style="font-size:12px">' + esc(r.path) + '</code></td>'
@@ -608,12 +890,10 @@
         + '<td style="font-size:11px;color:#666">' + rlLabel + '</td>'
         + '<td style="text-align:center"><input type="checkbox"' + (r.enabled ? ' checked' : '')
         +   ' onchange="patchRoute(\'' + r.id + '\',{enabled:this.checked})"></td>'
-        + '<td style="white-space:nowrap;font-size:12px">'
-        +   '<button class="lnk" onclick="openRouteModal(\'' + r.id + '\')">edit</button>'
-        +   ' &nbsp;'
-        +   '<button class="lnk" onclick="openLogsModal(\'' + r.id + '\',\'' + esc(r.path) + '\')">logs</button>'
-        + '</td>'
-        + '</tr>';
+        + '<td style="white-space:nowrap">'
+        +   '<button class="lnk" onclick="openRouteModal(\'' + r.id + '\')">edit</button> &nbsp;'
+        +   '<button class="lnk" onclick="openLogsModal(\'/routes/' + r.id + '/logs\',\'logs: ' + esc(r.path) + '\')">logs</button>'
+        + '</td></tr>';
     }).join('');
   }
 
@@ -633,20 +913,18 @@
       delBtn.classList.remove('hidden');
       var r = routes.find(function(x) { return x.id === id; });
       if (!r) return;
-
-      document.getElementById('r-path').value   = r.path;
+      document.getElementById('r-path').value = r.path;
       document.getElementById('r-method').value = r.method;
-      document.getElementById('r-code').value   = r.code;
+      document.getElementById('r-code').value = r.code;
       document.getElementById('r-logging').checked = r.logging;
-
       var ct = !r.corsOrigin ? '' : r.corsOrigin === '*' ? '*' : 'custom';
       document.getElementById('r-cors-type').value = ct;
       document.getElementById('cors-custom-wrap').style.display = ct === 'custom' ? '' : 'none';
       document.getElementById('r-cors-custom').value = ct === 'custom' ? r.corsOrigin : '';
-
       var rl = r.rateLimit && r.rateLimit.enabled;
       document.getElementById('r-rl').checked = !!rl;
       document.getElementById('rl-wrap').style.display = rl ? '' : 'none';
+      document.getElementById('r-rl-ip').checked = !!(r.rateLimit && r.rateLimit.perIp);
       if (rl) {
         document.getElementById('r-rl-req').value = r.rateLimit.requests;
         document.getElementById('r-rl-win').value = r.rateLimit.window;
@@ -654,9 +932,9 @@
     } else {
       document.getElementById('modal-title').textContent = 'new route';
       delBtn.classList.add('hidden');
-      document.getElementById('r-path').value   = '';
+      document.getElementById('r-path').value = '';
       document.getElementById('r-method').value = 'GET';
-      document.getElementById('r-code').value   = '';
+      document.getElementById('r-code').value = '';
       document.getElementById('r-logging').checked = false;
       document.getElementById('r-cors-type').value = '';
       document.getElementById('cors-custom-wrap').style.display = 'none';
@@ -665,6 +943,7 @@
       document.getElementById('rl-wrap').style.display = 'none';
       document.getElementById('r-rl-req').value = '100';
       document.getElementById('r-rl-win').value = '1m';
+      document.getElementById('r-rl-ip').checked = false;
     }
 
     document.getElementById('route-modal').classList.remove('hidden');
@@ -677,8 +956,8 @@
   }
 
   function onCorsChange() {
-    var v = document.getElementById('r-cors-type').value;
-    document.getElementById('cors-custom-wrap').style.display = v === 'custom' ? '' : 'none';
+    document.getElementById('cors-custom-wrap').style.display =
+      document.getElementById('r-cors-type').value === 'custom' ? '' : 'none';
   }
 
   function onRlChange() {
@@ -688,39 +967,24 @@
 
   async function saveRoute() {
     var path = document.getElementById('r-path').value.trim();
-    if (!path.startsWith('/')) {
-      alert('Path must start with /');
-      document.getElementById('r-path').focus();
-      return;
-    }
-
+    if (!path.startsWith('/')) { alert('Path must start with /'); return; }
     var ct = document.getElementById('r-cors-type').value;
-    var corsOrigin = ct === 'custom'
-      ? document.getElementById('r-cors-custom').value.trim()
-      : ct;
-
+    var corsOrigin = ct === 'custom' ? document.getElementById('r-cors-custom').value.trim() : ct;
     var rlOn = document.getElementById('r-rl').checked;
     var rateLimit = rlOn ? {
       enabled:  true,
       requests: parseInt(document.getElementById('r-rl-req').value) || 100,
-      window:   document.getElementById('r-rl-win').value
+      window:   document.getElementById('r-rl-win').value,
+      perIp:    document.getElementById('r-rl-ip').checked
     } : null;
-
     var data = {
-      path:       path,
-      method:     document.getElementById('r-method').value,
-      code:       document.getElementById('r-code').value,
-      corsOrigin: corsOrigin,
-      logging:    document.getElementById('r-logging').checked,
-      rateLimit:  rateLimit
+      path: path, method: document.getElementById('r-method').value,
+      code: document.getElementById('r-code').value,
+      corsOrigin: corsOrigin, logging: document.getElementById('r-logging').checked,
+      rateLimit: rateLimit
     };
-
-    if (editingId) {
-      await api('/routes/' + editingId, 'PUT', data);
-    } else {
-      await api('/routes', 'POST', data);
-    }
-
+    if (editingId) await api('/routes/' + editingId, 'PUT', data);
+    else await api('/routes', 'POST', data);
     closeRouteModal();
     await loadRoutes();
   }
@@ -732,22 +996,128 @@
     await loadRoutes();
   }
 
+  // ── Crons ───────────────────────────────────────────────────────────────────
+  async function loadCrons() {
+    crons = await api('/crons');
+    renderCrons();
+  }
+
+  function renderCrons() {
+    var tbody = document.getElementById('crons-body');
+    var cnt   = document.getElementById('cron-count');
+    cnt.textContent = crons.length ? '(' + crons.length + ')' : '';
+
+    if (!crons.length) {
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="6">no cron jobs yet &mdash; <button class="lnk" onclick="openCronModal(null)">add one</button></td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = crons.map(function(c) {
+      return '<tr>'
+        + '<td><strong>' + esc(c.name) + '</strong></td>'
+        + '<td style="font-size:11px;color:#666">every ' + esc(c.schedule) + '</td>'
+        + '<td style="font-size:11px;color:#666">' + relTime(c.lastRun) + '</td>'
+        + '<td style="text-align:center"><input type="checkbox"' + (c.logging ? ' checked' : '')
+        +   ' onchange="patchCron(\'' + c.id + '\',{logging:this.checked})"></td>'
+        + '<td style="text-align:center"><input type="checkbox"' + (c.enabled ? ' checked' : '')
+        +   ' onchange="patchCron(\'' + c.id + '\',{enabled:this.checked})"></td>'
+        + '<td style="white-space:nowrap">'
+        +   '<button class="lnk" onclick="runCronNow(\'' + c.id + '\')">run now</button> &nbsp;'
+        +   '<button class="lnk" onclick="openLogsModal(\'/crons/' + c.id + '/logs\',\'logs: ' + esc(c.name) + '\')">logs</button> &nbsp;'
+        +   '<button class="lnk" onclick="openCronModal(\'' + c.id + '\')">edit</button>'
+        + '</td></tr>';
+    }).join('');
+  }
+
+  async function patchCron(id, updates) {
+    await api('/crons/' + id, 'PATCH', updates);
+    var c = crons.find(function(x) { return x.id === id; });
+    if (c) Object.assign(c, updates);
+  }
+
+  function openCronModal(id) {
+    editingCronId = id || null;
+    var delBtn = document.getElementById('cron-del');
+    var runBtn = document.getElementById('cron-run-btn');
+
+    if (id) {
+      document.getElementById('cron-modal-title').textContent = 'edit cron job';
+      delBtn.classList.remove('hidden');
+      runBtn.classList.remove('hidden');
+      var c = crons.find(function(x) { return x.id === id; });
+      if (!c) return;
+      document.getElementById('c-name').value = c.name;
+      document.getElementById('c-schedule').value = c.schedule;
+      document.getElementById('c-code').value = c.code;
+      document.getElementById('c-logging').checked = c.logging;
+    } else {
+      document.getElementById('cron-modal-title').textContent = 'new cron job';
+      delBtn.classList.add('hidden');
+      runBtn.classList.add('hidden');
+      document.getElementById('c-name').value = '';
+      document.getElementById('c-schedule').value = '1h';
+      document.getElementById('c-code').value = '';
+      document.getElementById('c-logging').checked = false;
+    }
+
+    document.getElementById('cron-modal').classList.remove('hidden');
+    setTimeout(function() { document.getElementById('c-name').focus(); }, 40);
+  }
+
+  function closeCronModal() {
+    document.getElementById('cron-modal').classList.add('hidden');
+    editingCronId = null;
+  }
+
+  async function saveCron() {
+    var name = document.getElementById('c-name').value.trim();
+    if (!name) { alert('Name is required'); return; }
+    var data = {
+      name: name,
+      schedule: document.getElementById('c-schedule').value,
+      code: document.getElementById('c-code').value,
+      logging: document.getElementById('c-logging').checked
+    };
+    if (editingCronId) await api('/crons/' + editingCronId, 'PUT', data);
+    else await api('/crons', 'POST', data);
+    closeCronModal();
+    await loadCrons();
+  }
+
+  async function deleteCron() {
+    if (!editingCronId || !confirm('Delete this cron job and all its logs?')) return;
+    await api('/crons/' + editingCronId, 'DELETE');
+    closeCronModal();
+    await loadCrons();
+  }
+
+  async function runCronNow(id) {
+    var res = await api('/crons/' + id + '/run', 'POST');
+    if (res.error) alert('Error: ' + res.error);
+    else setTimeout(loadCrons, 600);
+  }
+
+  async function runCronNowFromModal() {
+    if (!editingCronId) return;
+    await runCronNow(editingCronId);
+  }
+
   // ── Logs modal ──────────────────────────────────────────────────────────────
-  async function openLogsModal(id, path) {
-    logsRouteId = id;
-    document.getElementById('logs-title').textContent = 'logs: ' + path;
+  async function openLogsModal(apiPath, title) {
+    logsApiPath = apiPath;
+    document.getElementById('logs-title').textContent = title;
     document.getElementById('logs-modal').classList.remove('hidden');
     await loadLogs();
   }
 
   function closeLogsModal() {
     document.getElementById('logs-modal').classList.add('hidden');
-    logsRouteId = null;
+    logsApiPath = null;
   }
 
   async function loadLogs() {
-    if (!logsRouteId) return;
-    var logs = await api('/routes/' + logsRouteId + '/logs');
+    if (!logsApiPath) return;
+    var logs = await api(logsApiPath);
     var tbody = document.getElementById('logs-body');
     var empty = document.getElementById('logs-empty');
 
@@ -761,65 +1131,169 @@
     tbody.innerHTML = logs.map(function(l, i) {
       var ts = new Date(l.timestamp + 'Z').toLocaleString();
       var cls = l.status < 400 ? 's-ok' : 's-err';
+      var meth = l.method || '?';
+      var mClass = meth === 'CRON' ? 'm-CRON' : 'm-' + meth;
       return '<tr style="cursor:pointer" onclick="toggleExpand(' + i + ')">'
         + '<td style="white-space:nowrap;font-size:11px;color:#666">' + esc(ts) + '</td>'
         + '<td class="' + cls + '">' + l.status + '</td>'
-        + '<td><span class="m-' + l.method + '">' + l.method + '</span></td>'
+        + '<td><span class="' + mClass + '">' + meth + '</span></td>'
         + '<td><span class="trunc">' + esc(l.request_body || '—') + '</span></td>'
         + '<td><span class="trunc">' + esc(l.response_body || '—') + '</span></td>'
         + '</tr>'
-        + '<tr class="exp-row hidden" id="exp-' + i + '">'
-        + '<td colspan="5">'
+        + '<tr class="exp-row hidden" id="exp-' + i + '"><td colspan="5">'
         + '<div style="display:flex;gap:10px;padding:4px 0 6px">'
-        + '<div style="flex:1"><strong style="font-size:11px">request body</strong><div class="exp-box">' + esc(pretty(l.request_body)) + '</div></div>'
-        + '<div style="flex:1"><strong style="font-size:11px">response</strong><div class="exp-box">' + esc(pretty(l.response_body)) + '</div></div>'
+        + '<div style="flex:1"><strong style="font-size:11px">request body</strong>'
+        + '<div class="exp-box">' + esc(pretty(l.request_body)) + '</div></div>'
+        + '<div style="flex:1"><strong style="font-size:11px">response</strong>'
+        + '<div class="exp-box">' + esc(pretty(l.response_body)) + '</div></div>'
         + '</div></td></tr>';
     }).join('');
   }
 
   function toggleExpand(i) {
-    var row = document.getElementById('exp-' + i);
-    if (row) row.classList.toggle('hidden');
+    var r = document.getElementById('exp-' + i);
+    if (r) r.classList.toggle('hidden');
   }
 
   async function doClearLogs() {
-    if (!logsRouteId || !confirm('Clear all logs for this route?')) return;
-    await api('/routes/' + logsRouteId + '/logs', 'DELETE');
+    if (!logsApiPath || !confirm('Clear all logs?')) return;
+    await api(logsApiPath, 'DELETE');
     await loadLogs();
   }
 
-  // ── Utils ───────────────────────────────────────────────────────────────────
-  function bgClose(e, id) {
-    if (e.target.id === id) {
-      if (id === 'route-modal') closeRouteModal();
-      else closeLogsModal();
+  // ── Store ────────────────────────────────────────────────────────────────────
+  var currentCollection = null;
+
+  async function openStoreModal() {
+    document.getElementById('store-modal').classList.remove('hidden');
+    await loadStoreCols();
+  }
+
+  function closeStoreModal() {
+    document.getElementById('store-modal').classList.add('hidden');
+    currentCollection = null;
+  }
+
+  async function loadStoreCols() {
+    document.getElementById('store-cols-view').style.display = '';
+    document.getElementById('store-entries-view').style.display = 'none';
+    document.getElementById('store-modal-title').textContent = 'store';
+
+    var cols = await api('/store');
+    var tbody = document.getElementById('store-cols-body');
+    var empty = document.getElementById('store-cols-empty');
+
+    if (!cols.length) {
+      tbody.innerHTML = '';
+      empty.classList.remove('hidden');
+      return;
     }
+    empty.classList.add('hidden');
+    tbody.innerHTML = cols.map(function(c) {
+      return '<tr>'
+        + '<td><button class="lnk" onclick="browseCollection(\'' + esc(c.collection) + '\')">' + esc(c.collection) + '</button></td>'
+        + '<td style="color:#666">' + c.count + '</td>'
+        + '<td><button class="lnk lnk-red" onclick="dropCollectionDirect(\'' + esc(c.collection) + '\')">drop</button></td>'
+        + '</tr>';
+    }).join('');
+  }
+
+  async function browseCollection(name) {
+    currentCollection = name;
+    document.getElementById('store-cols-view').style.display = 'none';
+    document.getElementById('store-entries-view').style.display = '';
+    document.getElementById('store-modal-title').textContent = 'store / ' + name;
+    document.getElementById('store-entries-col').textContent = name;
+    await loadStoreEntries();
+  }
+
+  async function showStoreCols() {
+    currentCollection = null;
+    await loadStoreCols();
+  }
+
+  async function loadStoreEntries() {
+    if (!currentCollection) return;
+    var entries = await api('/store/' + encodeURIComponent(currentCollection));
+    var tbody = document.getElementById('store-entries-body');
+    var empty = document.getElementById('store-entries-empty');
+
+    if (!entries.length) {
+      tbody.innerHTML = '';
+      empty.classList.remove('hidden');
+      return;
+    }
+    empty.classList.add('hidden');
+    tbody.innerHTML = entries.map(function(e) {
+      var preview = JSON.stringify(e.value);
+      return '<tr>'
+        + '<td><code style="font-size:11px">' + esc(e.key) + '</code></td>'
+        + '<td><span class="trunc" style="max-width:280px">' + esc(preview) + '</span></td>'
+        + '<td style="font-size:11px;color:#666;white-space:nowrap">' + esc(e.updated_at || '') + '</td>'
+        + '<td><button class="lnk lnk-red" onclick="deleteStoreEntry(\'' + esc(e.key) + '\')">delete</button></td>'
+        + '</tr>';
+    }).join('');
+  }
+
+  async function deleteStoreEntry(key) {
+    if (!currentCollection || !confirm('Delete "' + key + '" from ' + currentCollection + '?')) return;
+    await api('/store/' + encodeURIComponent(currentCollection) + '/' + encodeURIComponent(key), 'DELETE');
+    await loadStoreEntries();
+  }
+
+  async function dropCollection() {
+    if (!currentCollection || !confirm('Drop entire "' + currentCollection + '" collection?')) return;
+    await api('/store/' + encodeURIComponent(currentCollection), 'DELETE');
+    await showStoreCols();
+  }
+
+  async function dropCollectionDirect(name) {
+    if (!confirm('Drop entire "' + name + '" collection?')) return;
+    await api('/store/' + encodeURIComponent(name), 'DELETE');
+    await loadStoreCols();
+  }
+
+  // ── Helpers ─────────────────────────────────────────────────────────────────
+  function bgClose(e, id) {
+    if (e.target.id !== id) return;
+    if (id === 'route-modal') closeRouteModal();
+    else if (id === 'cron-modal') closeCronModal();
+    else if (id === 'logs-modal') closeLogsModal();
+    else if (id === 'store-modal') closeStoreModal();
+    else if (id === 'docs-modal') document.getElementById('docs-modal').classList.add('hidden');
   }
 
   function esc(s) {
-    return String(s || '')
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
+    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
   function pretty(s) {
     if (!s) return '';
-    try { return JSON.stringify(JSON.parse(s), null, 2); }
-    catch { return s; }
+    try { return JSON.stringify(JSON.parse(s), null, 2); } catch { return s; }
   }
 
-  // Tab in textarea
+  function relTime(ts) {
+    if (!ts) return '&mdash;';
+    var diff = Date.now() - new Date(ts).getTime();
+    if (diff < 5000)      return 'just now';
+    if (diff < 3600000)   return Math.floor(diff / 60000) + 'm ago';
+    if (diff < 86400000)  return Math.floor(diff / 3600000) + 'h ago';
+    return new Date(ts).toLocaleDateString();
+  }
+
+  // ── Tab in code textareas ────────────────────────────────────────────────────
   document.addEventListener('DOMContentLoaded', function() {
-    var ta = document.getElementById('r-code');
-    ta.addEventListener('keydown', function(e) {
-      if (e.key === 'Tab') {
-        e.preventDefault();
-        var s = ta.selectionStart;
-        ta.value = ta.value.slice(0, s) + '  ' + ta.value.slice(ta.selectionEnd);
-        ta.selectionStart = ta.selectionEnd = s + 2;
-      }
+    ['r-code', 'c-code'].forEach(function(id) {
+      var ta = document.getElementById(id);
+      if (!ta) return;
+      ta.addEventListener('keydown', function(e) {
+        if (e.key === 'Tab') {
+          e.preventDefault();
+          var s = ta.selectionStart;
+          ta.value = ta.value.slice(0, s) + '  ' + ta.value.slice(ta.selectionEnd);
+          ta.selectionStart = ta.selectionEnd = s + 2;
+        }
+      });
     });
     init();
   });
