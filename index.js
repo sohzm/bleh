@@ -1,10 +1,12 @@
 import { Database } from "bun:sqlite";
-import { existsSync, readFileSync, writeFileSync } from "fs";
+import { existsSync, readFileSync, writeFileSync, mkdirSync, unlinkSync } from "fs";
 import { fileURLToPath } from "url";
 import { join, dirname } from "path";
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 const PORT = parseInt(process.env.PORT || "3000");
+const UPLOADS_DIR = join(__dir, "uploads");
+mkdirSync(UPLOADS_DIR, { recursive: true });
 const PASSPHRASE = process.env.PASSPHRASE;
 
 if (!PASSPHRASE) {
@@ -95,6 +97,28 @@ const store = {
     return this.all(collection).filter(r => fn(r.value));
   },
 };
+
+// ── Files ──────────────────────────────────────────────────────────────────────
+db.run(`
+  CREATE TABLE IF NOT EXISTS files (
+    id TEXT PRIMARY KEY,
+    filename TEXT NOT NULL,
+    mimetype TEXT NOT NULL,
+    size INTEGER NOT NULL,
+    created_at TEXT DEFAULT (datetime('now'))
+  )
+`);
+
+const _fInsert = db.prepare(`INSERT INTO files (id, filename, mimetype, size) VALUES (?, ?, ?, ?)`);
+const _fAll    = db.prepare(`SELECT * FROM files ORDER BY created_at DESC`);
+const _fGet    = db.prepare(`SELECT * FROM files WHERE id = ?`);
+const _fDel    = db.prepare(`DELETE FROM files WHERE id = ?`);
+
+function fileId() {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  return Array.from(crypto.getRandomValues(new Uint8Array(13)))
+    .map(b => chars[b % chars.length]).join("");
+}
 
 // ── Rate limiting ──────────────────────────────────────────────────────────────
 const rlMap = new Map();
@@ -422,6 +446,34 @@ async function handleDashboard(req, url) {
     return json({ ok: true });
   }
 
+  // ── Files ─────────────────────────────────────────────────────────────────
+  if (sub === "/files" && method === "GET") {
+    return json(_fAll.all());
+  }
+
+  if (sub === "/files" && method === "POST") {
+    const formData = await req.formData();
+    const file = formData.get("file");
+    if (!file || typeof file === "string") return json({ error: "No file" }, 400);
+    const id = fileId();
+    const filename = file.name;
+    const mimetype = file.type || "application/octet-stream";
+    const bytes = await file.arrayBuffer();
+    await Bun.write(join(UPLOADS_DIR, id), bytes);
+    _fInsert.run(id, filename, mimetype, bytes.byteLength);
+    return json({ id, filename, mimetype, size: bytes.byteLength }, 201);
+  }
+
+  const fileMatch = sub.match(/^\/files\/([^/]+)$/);
+  if (fileMatch && method === "DELETE") {
+    const id = fileMatch[1];
+    const row = _fGet.get(id);
+    if (!row) return json({ error: "Not found" }, 404);
+    try { unlinkSync(join(UPLOADS_DIR, id)); } catch {}
+    _fDel.run(id);
+    return json({ ok: true });
+  }
+
   return json({ error: "Not found" }, 404);
 }
 
@@ -430,6 +482,18 @@ const server = Bun.serve({
   port: PORT,
   async fetch(req, server) {
     const url = new URL(req.url);
+
+    if (url.pathname.startsWith("/__u/")) {
+      const id = url.pathname.slice("/__u/".length);
+      const row = _fGet.get(id);
+      if (!row) return json({ error: "Not found" }, 404);
+      return new Response(Bun.file(join(UPLOADS_DIR, id)), {
+        headers: {
+          "Content-Type": row.mimetype,
+          "Content-Disposition": `inline; filename="${row.filename}"`,
+        },
+      });
+    }
 
     if (url.pathname.startsWith("/__dashboard"))
       return handleDashboard(req, url);
