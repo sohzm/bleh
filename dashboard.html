@@ -1113,9 +1113,14 @@ async function saveRoute() {
     perIp: document.getElementById('r-rl-perip').checked,
   } : null;
 
+  let pathValue = document.getElementById('r-path').value.trim();
+  if (!pathValue.startsWith('/')) {
+    pathValue = '/' + pathValue;
+  }
+
   const data = {
     method: document.getElementById('r-method').value,
-    path: document.getElementById('r-path').value,
+    path: pathValue,
     code: document.getElementById('r-code').value,
     corsOrigin, logging: document.getElementById('r-logging').checked,
     enabled: document.getElementById('r-enabled').checked,
